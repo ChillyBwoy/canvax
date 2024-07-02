@@ -2,15 +2,6 @@ import { None } from "../gleam_stdlib/gleam/option.mjs";
 import { Ok, Error } from "./gleam.mjs";
 import { Vector2 } from "./canvax/primitive.mjs";
 
-export function getContext($el, contextId, options) {
-  const ctx = $el.getContext(contextId, options);
-  return ctx ? new Ok(ctx) : new Error(null);
-}
-
-export function getDimensions($el) {
-  return new Ok(new Vector2($el.width, $el.height));
-}
-
 // CanvasDrawPath START
 export function beginPath(ctx) {
   ctx.beginPath();
@@ -23,7 +14,6 @@ export function beginPath(ctx) {
 export function fill(ctx, ...args) {
   // fill(fillRule?: CanvasFillRule): void;
   // fill(path: Path2D, fillRule?: CanvasFillRule): void;
-  console.log(args);
   // TODO: update args
   ctx.fill();
   return ctx;

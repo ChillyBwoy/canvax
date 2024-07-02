@@ -127,19 +127,11 @@ var Vector2 = class extends CustomType {
 };
 
 // build/dev/javascript/canvax/canvas.ffi.mjs
-function getContext($el, contextId, options) {
-  const ctx = $el.getContext(contextId, options);
-  return ctx ? new Ok(ctx) : new Error(null);
-}
-function getDimensions($el) {
-  return new Ok(new Vector2($el.width, $el.height));
-}
 function beginPath(ctx) {
   ctx.beginPath();
   return ctx;
 }
 function fill(ctx, ...args) {
-  console.log(args);
   ctx.fill();
   return ctx;
 }
@@ -170,22 +162,19 @@ function getElementById(id) {
   return $el ? new Ok($el) : new Error(null);
 }
 
-// build/dev/javascript/canvax/canvax/canvas.mjs
+// build/dev/javascript/canvax/context.ffi.mjs
+function getContext($el, contextId, options) {
+  const ctx = $el.getContext(contextId, options);
+  return ctx ? new Ok(ctx) : new Error(null);
+}
+
+// build/dev/javascript/canvax/canvax/context.mjs
 var ContextType2D = class extends CustomType {
 };
 var ContextTypeVitmapRenderer = class extends CustomType {
 };
 var ContextTypeWebGL = class extends CustomType {
 };
-var EvenOdd = class extends CustomType {
-};
-function canvas_fill_rule(rule) {
-  if (rule instanceof EvenOdd) {
-    return "evenodd";
-  } else {
-    return "nonzero";
-  }
-}
 function canvas_context_type(context) {
   if (context instanceof ContextType2D) {
     return "2d";
@@ -201,6 +190,17 @@ function get_context(canvas_el, context_id, settings) {
   let ctx_type = canvas_context_type(context_id);
   return getContext(canvas_el, ctx_type, settings);
 }
+
+// build/dev/javascript/canvax/canvax/canvas.mjs
+var EvenOdd = class extends CustomType {
+};
+function canvas_fill_rule(rule) {
+  if (rule instanceof EvenOdd) {
+    return "evenodd";
+  } else {
+    return "nonzero";
+  }
+}
 function fill2(ctx, rule) {
   if (rule instanceof Some) {
     let rule$1 = rule[0];
@@ -210,6 +210,11 @@ function fill2(ctx, rule) {
   }
 }
 
+// build/dev/javascript/canvax/common.ffi.mjs
+function getDimensions($el) {
+  return new Ok(new Vector2($el.width, $el.height));
+}
+
 // build/dev/javascript/canvax/canvax.mjs
 function main() {
   let $ = getElementById("canvas");
@@ -217,7 +222,7 @@ function main() {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      7,
+      9,
       "main",
       "Assignment pattern did not match",
       { value: $ }
@@ -229,7 +234,7 @@ function main() {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      8,
+      10,
       "main",
       "Assignment pattern did not match",
       { value: $1 }
@@ -241,7 +246,7 @@ function main() {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      9,
+      11,
       "main",
       "Assignment pattern did not match",
       { value: $2 }
@@ -250,7 +255,7 @@ function main() {
   let ctx = $2[0];
   let _pipe = ctx;
   let _pipe$1 = clearRect(_pipe, new Vector2(0, 0), rect2);
-  let _pipe$2 = fillStyle(_pipe$1, "rgba(128, 0, 0, 0.5)");
+  let _pipe$2 = fillStyle(_pipe$1, "rgba(128, 0, 128, 0.5)");
   let _pipe$3 = fillRect(_pipe$2, new Vector2(0, 0), rect2);
   let _pipe$4 = beginPath(_pipe$3);
   let _pipe$5 = moveTo(_pipe$4, new Vector2(75, 50));
