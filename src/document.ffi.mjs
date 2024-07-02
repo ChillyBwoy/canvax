@@ -5,6 +5,14 @@ export function getElementById(id) {
   return $el ? new Ok($el) : new Error(null);
 }
 
-export function raf(callback) {
-  requestAnimationFrame(callback);
+export function raf(initialState, callback) {
+  let delta = 0;
+  let state = initialState;
+
+  const render = () => {
+    state = callback(state, ++delta);
+    requestAnimationFrame(render);
+  };
+
+  requestAnimationFrame(render);
 }

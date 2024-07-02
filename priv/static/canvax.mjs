@@ -40,10 +40,10 @@ var List = class {
     return desired === 0;
   }
   countLength() {
-    let length = 0;
+    let length2 = 0;
     for (let _ of this)
-      length++;
-    return length;
+      length2++;
+    return length2;
   }
 };
 var ListIterator = class {
@@ -96,6 +96,16 @@ var Error = class extends Result {
     return false;
   }
 };
+function divideInt(a, b) {
+  return Math.trunc(divideFloat(a, b));
+}
+function divideFloat(a, b) {
+  if (b === 0) {
+    return 0;
+  } else {
+    return a / b;
+  }
+}
 function makeError(variant, module, line, fn, message, extra) {
   let error = new globalThis.Error(message);
   error.gleam_error = variant;
@@ -117,6 +127,60 @@ var Some = class extends CustomType {
 var None = class extends CustomType {
 };
 
+// build/dev/javascript/gleam_stdlib/dict.mjs
+var tempDataView = new DataView(new ArrayBuffer(8));
+var SHIFT = 5;
+var BUCKET_SIZE = Math.pow(2, SHIFT);
+var MASK = BUCKET_SIZE - 1;
+var MAX_INDEX_NODE = BUCKET_SIZE / 2;
+var MIN_ARRAY_NODE = BUCKET_SIZE / 4;
+
+// build/dev/javascript/gleam_stdlib/gleam_stdlib.mjs
+function round(float) {
+  return Math.round(float);
+}
+
+// build/dev/javascript/gleam_stdlib/gleam/float.mjs
+function negate(x) {
+  return -1 * x;
+}
+function do_round(x) {
+  let $ = x >= 0;
+  if ($) {
+    return round(x);
+  } else {
+    return 0 - round(negate(x));
+  }
+}
+function round2(x) {
+  return do_round(x);
+}
+
+// build/dev/javascript/gleam_community_maths/maths.mjs
+function pi() {
+  return Math.PI;
+}
+
+// build/dev/javascript/gleam_community_maths/gleam_community/maths/elementary.mjs
+function pi2() {
+  return pi();
+}
+
+// build/dev/javascript/canvax/document.ffi.mjs
+function getElementById(id) {
+  const $el = document.getElementById(id);
+  return $el ? new Ok($el) : new Error(null);
+}
+function raf(initialState, callback) {
+  let delta = 0;
+  let state = initialState;
+  const render = () => {
+    state = callback(state, ++delta);
+    requestAnimationFrame(render);
+  };
+  requestAnimationFrame(render);
+}
+
 // build/dev/javascript/canvax/canvax/primitive.mjs
 var Vector2 = class extends CustomType {
   constructor(x, y) {
@@ -126,7 +190,16 @@ var Vector2 = class extends CustomType {
   }
 };
 
-// build/dev/javascript/canvax/canvas.ffi.mjs
+// build/dev/javascript/canvax/common.ffi.mjs
+function getDimensions($el) {
+  return new Ok(new Vector2($el.width, $el.height));
+}
+
+// build/dev/javascript/canvax/context.ffi.mjs
+function getContext($el, options) {
+  const ctx = $el.getContext("2d", options);
+  return ctx ? new Ok(ctx) : new Error(null);
+}
 function beginPath(ctx) {
   ctx.beginPath();
   return ctx;
@@ -147,51 +220,16 @@ function clearRect(ctx, pos, size) {
   ctx.clearRect(pos.x, pos.y, size.x, size.y);
   return ctx;
 }
-function lineTo(ctx, coord) {
-  ctx.lineTo(coord.x, coord.y);
+function arc(ctx, pos, radius, startAngle, endAngle, counterclockwise) {
+  ctx.arc(pos.x, pos.y, radius, startAngle, endAngle, counterclockwise);
   return ctx;
 }
-function moveTo(ctx, pos) {
-  ctx.moveTo(pos.x, pos.y);
+function closePath(ctx) {
+  ctx.closePath();
   return ctx;
-}
-
-// build/dev/javascript/canvax/document.ffi.mjs
-function getElementById(id) {
-  const $el = document.getElementById(id);
-  return $el ? new Ok($el) : new Error(null);
-}
-
-// build/dev/javascript/canvax/context.ffi.mjs
-function getContext($el, contextId, options) {
-  const ctx = $el.getContext(contextId, options);
-  return ctx ? new Ok(ctx) : new Error(null);
 }
 
 // build/dev/javascript/canvax/canvax/context.mjs
-var ContextType2D = class extends CustomType {
-};
-var ContextTypeVitmapRenderer = class extends CustomType {
-};
-var ContextTypeWebGL = class extends CustomType {
-};
-function canvas_context_type(context) {
-  if (context instanceof ContextType2D) {
-    return "2d";
-  } else if (context instanceof ContextTypeVitmapRenderer) {
-    return "bitmaprenderer";
-  } else if (context instanceof ContextTypeWebGL) {
-    return "webgl";
-  } else {
-    return "webgl2";
-  }
-}
-function get_context(canvas_el, context_id, settings) {
-  let ctx_type = canvas_context_type(context_id);
-  return getContext(canvas_el, ctx_type, settings);
-}
-
-// build/dev/javascript/canvax/canvax/canvas.mjs
 var EvenOdd = class extends CustomType {
 };
 function canvas_fill_rule(rule) {
@@ -209,20 +247,65 @@ function fill2(ctx, rule) {
     return fill(ctx, new None());
   }
 }
-
-// build/dev/javascript/canvax/common.ffi.mjs
-function getDimensions($el) {
-  return new Ok(new Vector2($el.width, $el.height));
+function with_path(ctx, callback) {
+  let _pipe = beginPath(ctx);
+  let _pipe$1 = callback(_pipe);
+  return closePath(_pipe$1);
 }
 
 // build/dev/javascript/canvax/canvax.mjs
+var State = class extends CustomType {
+  constructor(pos, delta, rect2, ball_radius) {
+    super();
+    this.pos = pos;
+    this.delta = delta;
+    this.rect = rect2;
+    this.ball_radius = ball_radius;
+  }
+};
+function draw_ball(inst, pos, radius) {
+  return with_path(
+    inst,
+    (c) => {
+      let _pipe = arc(c, pos, radius, 0, pi2() * 2, new None());
+      let _pipe$1 = fillStyle(_pipe, "#f00");
+      return fill2(_pipe$1, new None());
+    }
+  );
+}
+function next_pos(state) {
+  let dx = (() => {
+    let $ = state.pos.x + state.delta.x > state.rect.x - round2(
+      state.ball_radius
+    ) || state.pos.x + state.delta.x < round2(state.ball_radius);
+    if ($) {
+      return state.delta.x * -1;
+    } else {
+      return state.delta.x;
+    }
+  })();
+  let dy = (() => {
+    let $ = state.pos.y + state.delta.y > state.rect.y - round2(
+      state.ball_radius
+    ) || state.pos.y + state.delta.y < round2(state.ball_radius);
+    if ($) {
+      return state.delta.y * -1;
+    } else {
+      return state.delta.y;
+    }
+  })();
+  return state.withFields({
+    delta: new Vector2(dx, dy),
+    pos: new Vector2(state.pos.x + dx, state.pos.y + dy)
+  });
+}
 function main() {
   let $ = getElementById("canvas");
   if (!$.isOk()) {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      9,
+      46,
       "main",
       "Assignment pattern did not match",
       { value: $ }
@@ -234,34 +317,41 @@ function main() {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      10,
+      47,
       "main",
       "Assignment pattern did not match",
       { value: $1 }
     );
   }
   let rect2 = $1[0];
-  let $2 = get_context(el, new ContextType2D(), new None());
+  let $2 = getContext(el, new None());
   if (!$2.isOk()) {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      11,
+      48,
       "main",
       "Assignment pattern did not match",
       { value: $2 }
     );
   }
-  let ctx = $2[0];
-  let _pipe = ctx;
-  let _pipe$1 = clearRect(_pipe, new Vector2(0, 0), rect2);
-  let _pipe$2 = fillStyle(_pipe$1, "rgba(128, 0, 128, 0.5)");
-  let _pipe$3 = fillRect(_pipe$2, new Vector2(0, 0), rect2);
-  let _pipe$4 = beginPath(_pipe$3);
-  let _pipe$5 = moveTo(_pipe$4, new Vector2(75, 50));
-  let _pipe$6 = lineTo(_pipe$5, new Vector2(100, 75));
-  let _pipe$7 = lineTo(_pipe$6, new Vector2(100, 25));
-  return fill2(_pipe$7, new None());
+  let inst = $2[0];
+  return raf(
+    new State(
+      new Vector2(divideInt(rect2.x, 5), divideInt(rect2.y, 3)),
+      new Vector2(5, 5),
+      rect2,
+      15
+    ),
+    (state, _) => {
+      let _pipe = clearRect(inst, new Vector2(0, 0), rect2);
+      let _pipe$1 = fillStyle(_pipe, "rgba(128, 128, 128, 0.5)");
+      let _pipe$2 = fillRect(_pipe$1, new Vector2(0, 0), rect2);
+      let _pipe$3 = fillStyle(_pipe$2, "rgb(255, 255, 255)");
+      draw_ball(_pipe$3, state.pos, state.ball_radius);
+      return next_pos(state);
+    }
+  );
 }
 
 // build/.lustre/entry.mjs

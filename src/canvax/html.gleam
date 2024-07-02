@@ -6,4 +6,4 @@ pub fn get_element_by_id(_id: String) -> Result(HTMLCanvasElement, Nil) {
 }
 
 @external(javascript, "../document.ffi.mjs", "raf")
-pub fn raf(callback: fn() -> Nil) -> Nil
+pub fn raf(initial_state: a, callback: fn(a, Int) -> a) -> Nil
