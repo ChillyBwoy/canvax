@@ -108,24 +108,14 @@ function makeError(variant, module, line, fn, message, extra) {
 }
 
 // build/dev/javascript/gleam_stdlib/gleam/option.mjs
+var Some = class extends CustomType {
+  constructor(x0) {
+    super();
+    this[0] = x0;
+  }
+};
 var None = class extends CustomType {
 };
-
-// build/dev/javascript/canvax/canvas.ffi.mjs
-function getContext($el, contextId, options) {
-  const ctx = $el.getContext(contextId, options);
-  return ctx ? new Ok(ctx) : new Error(null);
-}
-function fillRect(ctx, pos, size, style) {
-  ctx.fillStyle = style;
-  ctx.fillRect(pos.x, pos.y, size.x, size.y);
-}
-
-// build/dev/javascript/canvax/document.ffi.mjs
-function getElementById(id) {
-  const $el = document.getElementById(id);
-  return $el ? new Ok($el) : new Error(null);
-}
 
 // build/dev/javascript/canvax/canvax/primitive.mjs
 var Vector2 = class extends CustomType {
@@ -136,6 +126,50 @@ var Vector2 = class extends CustomType {
   }
 };
 
+// build/dev/javascript/canvax/canvas.ffi.mjs
+function getContext($el, contextId, options) {
+  const ctx = $el.getContext(contextId, options);
+  return ctx ? new Ok(ctx) : new Error(null);
+}
+function getDimensions($el) {
+  return new Ok(new Vector2($el.width, $el.height));
+}
+function beginPath(ctx) {
+  ctx.beginPath();
+  return ctx;
+}
+function fill(ctx, ...args) {
+  console.log(args);
+  ctx.fill();
+  return ctx;
+}
+function fillStyle(ctx, style) {
+  ctx.fillStyle = style;
+  return ctx;
+}
+function fillRect(ctx, pos, size) {
+  ctx.fillRect(pos.x, pos.y, size.x, size.y);
+  return ctx;
+}
+function clearRect(ctx, pos, size) {
+  ctx.clearRect(pos.x, pos.y, size.x, size.y);
+  return ctx;
+}
+function lineTo(ctx, coord) {
+  ctx.lineTo(coord.x, coord.y);
+  return ctx;
+}
+function moveTo(ctx, pos) {
+  ctx.moveTo(pos.x, pos.y);
+  return ctx;
+}
+
+// build/dev/javascript/canvax/document.ffi.mjs
+function getElementById(id) {
+  const $el = document.getElementById(id);
+  return $el ? new Ok($el) : new Error(null);
+}
+
 // build/dev/javascript/canvax/canvax/canvas.mjs
 var ContextType2D = class extends CustomType {
 };
@@ -143,6 +177,15 @@ var ContextTypeVitmapRenderer = class extends CustomType {
 };
 var ContextTypeWebGL = class extends CustomType {
 };
+var EvenOdd = class extends CustomType {
+};
+function canvas_fill_rule(rule) {
+  if (rule instanceof EvenOdd) {
+    return "evenodd";
+  } else {
+    return "nonzero";
+  }
+}
 function canvas_context_type(context) {
   if (context instanceof ContextType2D) {
     return "2d";
@@ -157,6 +200,14 @@ function canvas_context_type(context) {
 function get_context(canvas_el, context_id, settings) {
   let ctx_type = canvas_context_type(context_id);
   return getContext(canvas_el, ctx_type, settings);
+}
+function fill2(ctx, rule) {
+  if (rule instanceof Some) {
+    let rule$1 = rule[0];
+    return fill(ctx, new Some(canvas_fill_rule(rule$1)));
+  } else {
+    return fill(ctx, new None());
+  }
 }
 
 // build/dev/javascript/canvax/canvax.mjs
@@ -173,7 +224,7 @@ function main() {
     );
   }
   let el = $[0];
-  let $1 = get_context(el, new ContextType2D(), new None());
+  let $1 = getDimensions(el);
   if (!$1.isOk()) {
     throw makeError(
       "assignment_no_match",
@@ -184,14 +235,28 @@ function main() {
       { value: $1 }
     );
   }
-  let ctx = $1[0];
+  let rect2 = $1[0];
+  let $2 = get_context(el, new ContextType2D(), new None());
+  if (!$2.isOk()) {
+    throw makeError(
+      "assignment_no_match",
+      "canvax",
+      9,
+      "main",
+      "Assignment pattern did not match",
+      { value: $2 }
+    );
+  }
+  let ctx = $2[0];
   let _pipe = ctx;
-  return fillRect(
-    _pipe,
-    new Vector2(50, 50),
-    new Vector2(100, 100),
-    "rgba(128, 0, 0, 0.5)"
-  );
+  let _pipe$1 = clearRect(_pipe, new Vector2(0, 0), rect2);
+  let _pipe$2 = fillStyle(_pipe$1, "rgba(128, 0, 0, 0.5)");
+  let _pipe$3 = fillRect(_pipe$2, new Vector2(0, 0), rect2);
+  let _pipe$4 = beginPath(_pipe$3);
+  let _pipe$5 = moveTo(_pipe$4, new Vector2(75, 50));
+  let _pipe$6 = lineTo(_pipe$5, new Vector2(100, 75));
+  let _pipe$7 = lineTo(_pipe$6, new Vector2(100, 25));
+  return fill2(_pipe$7, new None());
 }
 
 // build/.lustre/entry.mjs

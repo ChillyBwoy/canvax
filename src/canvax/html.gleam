@@ -4,3 +4,6 @@ pub type HTMLCanvasElement
 pub fn get_element_by_id(_id: String) -> Result(HTMLCanvasElement, Nil) {
   Error(Nil)
 }
+
+@external(javascript, "../document.ffi.mjs", "raf")
+pub fn raf(callback: fn() -> Nil) -> Nil
