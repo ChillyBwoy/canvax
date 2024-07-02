@@ -96,16 +96,6 @@ var Error = class extends Result {
     return false;
   }
 };
-function divideInt(a, b) {
-  return Math.trunc(divideFloat(a, b));
-}
-function divideFloat(a, b) {
-  if (b === 0) {
-    return 0;
-  } else {
-    return a / b;
-  }
-}
 function makeError(variant, module, line, fn, message, extra) {
   let error = new globalThis.Error(message);
   error.gleam_error = variant;
@@ -117,16 +107,6 @@ function makeError(variant, module, line, fn, message, extra) {
   return error;
 }
 
-// build/dev/javascript/gleam_stdlib/gleam/option.mjs
-var Some = class extends CustomType {
-  constructor(x0) {
-    super();
-    this[0] = x0;
-  }
-};
-var None = class extends CustomType {
-};
-
 // build/dev/javascript/gleam_stdlib/dict.mjs
 var tempDataView = new DataView(new ArrayBuffer(8));
 var SHIFT = 5;
@@ -136,24 +116,12 @@ var MAX_INDEX_NODE = BUCKET_SIZE / 2;
 var MIN_ARRAY_NODE = BUCKET_SIZE / 4;
 
 // build/dev/javascript/gleam_stdlib/gleam_stdlib.mjs
-function round(float) {
-  return Math.round(float);
-}
-
-// build/dev/javascript/gleam_stdlib/gleam/float.mjs
-function negate(x) {
-  return -1 * x;
-}
-function do_round(x) {
-  let $ = x >= 0;
-  if ($) {
-    return round(x);
-  } else {
-    return 0 - round(negate(x));
+function random_uniform() {
+  const random_uniform_result = Math.random();
+  if (random_uniform_result === 1) {
+    return random_uniform();
   }
-}
-function round2(x) {
-  return do_round(x);
+  return random_uniform_result;
 }
 
 // build/dev/javascript/gleam_community_maths/maths.mjs
@@ -181,7 +149,7 @@ function raf(initialState, callback) {
   requestAnimationFrame(render);
 }
 
-// build/dev/javascript/canvax/canvax/primitive.mjs
+// build/dev/javascript/canvax/canvax/primitives.mjs
 var Vector2 = class extends CustomType {
   constructor(x, y) {
     super();
@@ -205,11 +173,19 @@ function beginPath(ctx) {
   return ctx;
 }
 function fill(ctx, ...args) {
-  ctx.fill();
+  ctx.fill(...args);
+  return ctx;
+}
+function stroke(ctx) {
+  ctx.stroke();
   return ctx;
 }
 function fillStyle(ctx, style) {
   ctx.fillStyle = style;
+  return ctx;
+}
+function strokeStyle(ctx, style) {
+  ctx.strokeStyle = style;
   return ctx;
 }
 function fillRect(ctx, pos, size) {
@@ -230,23 +206,6 @@ function closePath(ctx) {
 }
 
 // build/dev/javascript/canvax/canvax/context.mjs
-var EvenOdd = class extends CustomType {
-};
-function canvas_fill_rule(rule) {
-  if (rule instanceof EvenOdd) {
-    return "evenodd";
-  } else {
-    return "nonzero";
-  }
-}
-function fill2(ctx, rule) {
-  if (rule instanceof Some) {
-    let rule$1 = rule[0];
-    return fill(ctx, new Some(canvas_fill_rule(rule$1)));
-  } else {
-    return fill(ctx, new None());
-  }
-}
 function with_path(ctx, callback) {
   let _pipe = beginPath(ctx);
   let _pipe$1 = callback(_pipe);
@@ -267,17 +226,17 @@ function draw_ball(inst, pos, radius) {
   return with_path(
     inst,
     (c) => {
-      let _pipe = arc(c, pos, radius, 0, pi2() * 2, new None());
-      let _pipe$1 = fillStyle(_pipe, "#f00");
-      return fill2(_pipe$1, new None());
+      let _pipe = arc(c, pos, radius, 0, pi2() * 2);
+      let _pipe$1 = fillStyle(_pipe, "#ffaff3");
+      let _pipe$2 = fill(_pipe$1);
+      let _pipe$3 = strokeStyle(_pipe$2, "#000");
+      return stroke(_pipe$3);
     }
   );
 }
 function next_pos(state) {
   let dx = (() => {
-    let $ = state.pos.x + state.delta.x > state.rect.x - round2(
-      state.ball_radius
-    ) || state.pos.x + state.delta.x < round2(state.ball_radius);
+    let $ = state.pos.x + state.delta.x > state.rect.x - state.ball_radius || state.pos.x + state.delta.x < state.ball_radius;
     if ($) {
       return state.delta.x * -1;
     } else {
@@ -285,9 +244,7 @@ function next_pos(state) {
     }
   })();
   let dy = (() => {
-    let $ = state.pos.y + state.delta.y > state.rect.y - round2(
-      state.ball_radius
-    ) || state.pos.y + state.delta.y < round2(state.ball_radius);
+    let $ = state.pos.y + state.delta.y > state.rect.y - state.ball_radius || state.pos.y + state.delta.y < state.ball_radius;
     if ($) {
       return state.delta.y * -1;
     } else {
@@ -305,7 +262,7 @@ function main() {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      46,
+      56,
       "main",
       "Assignment pattern did not match",
       { value: $ }
@@ -317,37 +274,51 @@ function main() {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      47,
+      57,
       "main",
       "Assignment pattern did not match",
       { value: $1 }
     );
   }
   let rect2 = $1[0];
-  let $2 = getContext(el, new None());
+  let $2 = getContext(el);
   if (!$2.isOk()) {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      48,
+      58,
       "main",
       "Assignment pattern did not match",
       { value: $2 }
     );
   }
   let inst = $2[0];
+  let speed = 5;
+  let ball_radius = 10;
   return raf(
     new State(
-      new Vector2(divideInt(rect2.x, 5), divideInt(rect2.y, 3)),
-      new Vector2(5, 5),
+      new Vector2(rect2.x * random_uniform(), rect2.y * random_uniform()),
+      new Vector2(speed * random_uniform(), speed * random_uniform()),
       rect2,
-      15
+      ball_radius * random_uniform() + 2
     ),
     (state, _) => {
-      let _pipe = clearRect(inst, new Vector2(0, 0), rect2);
-      let _pipe$1 = fillStyle(_pipe, "rgba(128, 128, 128, 0.5)");
-      let _pipe$2 = fillRect(_pipe$1, new Vector2(0, 0), rect2);
-      let _pipe$3 = fillStyle(_pipe$2, "rgb(255, 255, 255)");
+      let $3 = getDimensions(el);
+      if (!$3.isOk()) {
+        throw makeError(
+          "assignment_no_match",
+          "canvax",
+          71,
+          "",
+          "Assignment pattern did not match",
+          { value: $3 }
+        );
+      }
+      let rect$1 = $3[0];
+      let _pipe = inst;
+      let _pipe$1 = clearRect(_pipe, new Vector2(0, 0), rect$1);
+      let _pipe$2 = fillStyle(_pipe$1, "#fffbe8");
+      let _pipe$3 = fillRect(_pipe$2, new Vector2(0, 0), rect$1);
       draw_ball(_pipe$3, state.pos, state.ball_radius);
       return next_pos(state);
     }

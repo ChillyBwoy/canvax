@@ -1,6 +1,6 @@
 import { None } from "../gleam_stdlib/gleam/option.mjs";
 import { Ok, Error } from "./gleam.mjs";
-import { Vector2 } from "./canvax/primitive.mjs";
+import { Vector2 } from "./canvax/primitives.mjs";
 
 export function getContext($el, options) {
   const ctx = $el.getContext("2d", options);
@@ -13,22 +13,32 @@ export function beginPath(ctx) {
   return ctx;
 }
 
-// clip(fillRule?: CanvasFillRule): void;
-// clip(path: Path2D, fillRule?: CanvasFillRule): void;
+export function clip(ctx, ...args) {
+  // clip(fillRule?: CanvasFillRule): void;
+  // clip(path: Path2D, fillRule?: CanvasFillRule): void;
+  ctx.clip(...args);
+  return ctx;
+}
 
 export function fill(ctx, ...args) {
   // fill(fillRule?: CanvasFillRule): void;
   // fill(path: Path2D, fillRule?: CanvasFillRule): void;
   // TODO: update args
-  ctx.fill();
+  ctx.fill(...args);
   return ctx;
 }
 
-// isPointInPath(x: number, y: number, fillRule?: CanvasFillRule): boolean;
-// isPointInPath(path: Path2D, x: number, y: number, fillRule?: CanvasFillRule): boolean;
+export function isPointInPath(ctx, ...args) {
+  // isPointInPath(x: number, y: number, fillRule?: CanvasFillRule): boolean;
+  // isPointInPath(path: Path2D, x: number, y: number, fillRule?: CanvasFillRule): boolean;
+  throw new Error("Not implemented");
+}
 
-// isPointInStroke(x: number, y: number): boolean;
-// isPointInStroke(path: Path2D, x: number, y: number): boolean;
+export function isPointInStroke(ctx, ...args) {
+  // isPointInStroke(x: number, y: number): boolean;
+  // isPointInStroke(path: Path2D, x: number, y: number): boolean;
+  throw new Error("Not implemented");
+}
 
 export function stroke(ctx) {
   ctx.stroke();
@@ -117,11 +127,20 @@ export function moveTo(ctx, pos) {
   ctx.moveTo(pos.x, pos.y);
   return ctx;
 }
-// quadraticCurveTo(cpx: number, cpy: number, x: number, y: number): void;
+
+export function quadraticCurveTo(ctx, cp, point) {
+  ctx.quadraticCurveTo(cp.x, cp.y, point.x, point.y);
+  return ctx;
+}
+
 export function rect(ctx, pos, size) {
   ctx.rect(pos.x, pos.y, size.x, size.y);
   return ctx;
 }
-// roundRect(x: number, y: number, w: number, h: number, radii?: number | DOMPointInit | (number | DOMPointInit)[]): void;
+
+export function roundRect(ctx) {
+  // roundRect(x: number, y: number, w: number, h: number, radii?: number | DOMPointInit | (number | DOMPointInit)[]): void;
+  throw new Error("Not implemented");
+}
 
 // CanvasPath END
