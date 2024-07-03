@@ -46,6 +46,9 @@ var List = class {
     return length2;
   }
 };
+function toList(elements, tail) {
+  return List.fromArray(elements, tail);
+}
 var ListIterator = class {
   #current;
   constructor(current) {
@@ -124,15 +127,22 @@ function random_uniform() {
   return random_uniform_result;
 }
 
-// build/dev/javascript/gleam_community_maths/maths.mjs
-function pi() {
-  return Math.PI;
-}
+// build/dev/javascript/canvax/canvax/primitives/vector2.mjs
+var Vector2 = class extends CustomType {
+  constructor(x, y) {
+    super();
+    this.x = x;
+    this.y = y;
+  }
+};
 
-// build/dev/javascript/gleam_community_maths/gleam_community/maths/elementary.mjs
-function pi2() {
-  return pi();
-}
+// build/dev/javascript/canvax/app/context.mjs
+var RenderContext = class extends CustomType {
+  constructor(viewport_size) {
+    super();
+    this.viewport_size = viewport_size;
+  }
+};
 
 // build/dev/javascript/canvax/document.ffi.mjs
 function getElementById(id) {
@@ -149,43 +159,13 @@ function raf(initialState, callback) {
   requestAnimationFrame(render);
 }
 
-// build/dev/javascript/canvax/canvax/primitives.mjs
-var Vector2 = class extends CustomType {
-  constructor(x, y) {
-    super();
-    this.x = x;
-    this.y = y;
-  }
-};
-
-// build/dev/javascript/canvax/common.ffi.mjs
-function getDimensions($el) {
-  return new Ok(new Vector2($el.width, $el.height));
-}
-
 // build/dev/javascript/canvax/context.ffi.mjs
 function getContext($el, options) {
   const ctx = $el.getContext("2d", options);
   return ctx ? new Ok(ctx) : new Error(null);
 }
-function beginPath(ctx) {
-  ctx.beginPath();
-  return ctx;
-}
-function fill(ctx, ...args) {
-  ctx.fill(...args);
-  return ctx;
-}
-function stroke(ctx) {
-  ctx.stroke();
-  return ctx;
-}
 function fillStyle(ctx, style) {
   ctx.fillStyle = style;
-  return ctx;
-}
-function strokeStyle(ctx, style) {
-  ctx.strokeStyle = style;
   return ctx;
 }
 function fillRect(ctx, pos, size) {
@@ -196,73 +176,54 @@ function clearRect(ctx, pos, size) {
   ctx.clearRect(pos.x, pos.y, size.x, size.y);
   return ctx;
 }
-function arc(ctx, pos, radius, startAngle, endAngle, counterclockwise) {
-  ctx.arc(pos.x, pos.y, radius, startAngle, endAngle, counterclockwise);
-  return ctx;
-}
-function closePath(ctx) {
-  ctx.closePath();
-  return ctx;
+
+// build/dev/javascript/canvax/canvax/effect.mjs
+var Effect = class extends CustomType {
+  constructor(all) {
+    super();
+    this.all = all;
+  }
+};
+function none() {
+  return new Effect(toList([]));
 }
 
-// build/dev/javascript/canvax/canvax/context.mjs
-function with_path(ctx, callback) {
-  let _pipe = beginPath(ctx);
-  let _pipe$1 = callback(_pipe);
-  return closePath(_pipe$1);
-}
-
-// build/dev/javascript/canvax/canvax.mjs
-var State = class extends CustomType {
-  constructor(pos, delta, rect2, ball_radius) {
+// build/dev/javascript/canvax/app/ball.mjs
+var Model = class extends CustomType {
+  constructor(pos, delta, radius, speed) {
     super();
     this.pos = pos;
     this.delta = delta;
-    this.rect = rect2;
-    this.ball_radius = ball_radius;
+    this.radius = radius;
+    this.speed = speed;
   }
 };
-function draw_ball(inst, pos, radius) {
-  return with_path(
-    inst,
-    (c) => {
-      let _pipe = arc(c, pos, radius, 0, pi2() * 2);
-      let _pipe$1 = fillStyle(_pipe, "#ffaff3");
-      let _pipe$2 = fill(_pipe$1);
-      let _pipe$3 = strokeStyle(_pipe$2, "#000");
-      return stroke(_pipe$3);
-    }
+function init(render_context, radius, speed) {
+  let model = new Model(
+    new Vector2(
+      render_context.viewport_size.x * random_uniform(),
+      render_context.viewport_size.y * random_uniform()
+    ),
+    new Vector2(speed * random_uniform(), speed * random_uniform()),
+    radius,
+    speed
   );
+  return [model, none()];
 }
-function next_pos(state) {
-  let dx = (() => {
-    let $ = state.pos.x + state.delta.x > state.rect.x - state.ball_radius || state.pos.x + state.delta.x < state.ball_radius;
-    if ($) {
-      return state.delta.x * -1;
-    } else {
-      return state.delta.x;
-    }
-  })();
-  let dy = (() => {
-    let $ = state.pos.y + state.delta.y > state.rect.y - state.ball_radius || state.pos.y + state.delta.y < state.ball_radius;
-    if ($) {
-      return state.delta.y * -1;
-    } else {
-      return state.delta.y;
-    }
-  })();
-  return state.withFields({
-    delta: new Vector2(dx, dy),
-    pos: new Vector2(state.pos.x + dx, state.pos.y + dy)
-  });
+
+// build/dev/javascript/canvax/common.ffi.mjs
+function getDimensions($el) {
+  return new Ok(new Vector2($el.width, $el.height));
 }
+
+// build/dev/javascript/canvax/canvax.mjs
 function main() {
   let $ = getElementById("canvas");
   if (!$.isOk()) {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      56,
+      14,
       "main",
       "Assignment pattern did not match",
       { value: $ }
@@ -274,7 +235,7 @@ function main() {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      57,
+      15,
       "main",
       "Assignment pattern did not match",
       { value: $1 }
@@ -286,41 +247,25 @@ function main() {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      58,
+      16,
       "main",
       "Assignment pattern did not match",
       { value: $2 }
     );
   }
-  let inst = $2[0];
+  let ctx = $2[0];
+  let render_context = new RenderContext(rect2);
   let speed = 5;
   let ball_radius = 10;
+  let $3 = init(render_context, ball_radius, speed);
   return raf(
-    new State(
-      new Vector2(rect2.x * random_uniform(), rect2.y * random_uniform()),
-      new Vector2(speed * random_uniform(), speed * random_uniform()),
-      rect2,
-      ball_radius * random_uniform() + 2
-    ),
-    (state, _) => {
-      let $3 = getDimensions(el);
-      if (!$3.isOk()) {
-        throw makeError(
-          "assignment_no_match",
-          "canvax",
-          71,
-          "",
-          "Assignment pattern did not match",
-          { value: $3 }
-        );
-      }
-      let rect$1 = $3[0];
-      let _pipe = inst;
-      let _pipe$1 = clearRect(_pipe, new Vector2(0, 0), rect$1);
+    [render_context],
+    (model, _) => {
+      let _pipe = ctx;
+      let _pipe$1 = clearRect(_pipe, new Vector2(0, 0), rect2);
       let _pipe$2 = fillStyle(_pipe$1, "#fffbe8");
-      let _pipe$3 = fillRect(_pipe$2, new Vector2(0, 0), rect$1);
-      draw_ball(_pipe$3, state.pos, state.ball_radius);
-      return next_pos(state);
+      fillRect(_pipe$2, new Vector2(0, 0), rect2);
+      return model;
     }
   );
 }

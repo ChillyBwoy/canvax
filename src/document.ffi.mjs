@@ -16,3 +16,19 @@ export function raf(initialState, callback) {
 
   requestAnimationFrame(render);
 }
+
+class Renderer {
+  constructor() {}
+}
+
+export function loop(renderers) {
+  let delta = 0;
+
+  const dispatch = () => {
+    for (const renderer of renderers) {
+    }
+    requestAnimationFrame(dispatch);
+  };
+
+  requestAnimationFrame(dispatch);
+}
