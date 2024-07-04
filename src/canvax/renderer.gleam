@@ -1,25 +1,14 @@
 import canvax/canvas.{type CanvasRenderingContext2D}
 
-pub opaque type Renderer(a) {
-  Renderer(items: List(a))
-}
-
-// pub fn raf(initial_state: a, callback: fn(a, Int) -> a) -> Nil
-
 pub fn create_renderer(
-  ctx: CanvasRenderingContext2D,
-  render_context: a,
-  initial_model: b,
-  update: fn(a, b, Int) -> m,
-  render: fn(CanvasRenderingContext2D, a, b, Int) -> Nil,
+  initial: m,
+  on_frame do_frame: fn(m, rc) -> msg,
+  on_update do_update: fn(msg, m, rc) -> m,
+  on_render do_render: fn(CanvasRenderingContext2D, m, rc) -> Nil,
 ) {
-  let go = fn() { todo }
-  // #(
-  //   initial_model,
-  //   fn(model, frame) {
-  //     render(ctx, render_context, model, frame)
-  //     update(render_context, model, frame)
-  //   },
-  //   update,
-  // )
+  let dispatch = fn(ctx: CanvasRenderingContext2D, model: m, render_context: rc) {
+    do_render(ctx, model, render_context)
+    do_frame(model, render_context)
+    |> do_update(model, render_context)
+  }
 }

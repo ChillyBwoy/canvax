@@ -1,7 +1,7 @@
 import app/context.{type RenderContext}
 import canvax/canvas.{type CanvasRenderingContext2D}
-import canvax/effect.{type Effect}
 import canvax/primitives/vector2.{type Vector2, Vector2}
+import canvax/renderer.{create_renderer}
 
 import gleam/float
 import gleam_community/maths/elementary as math
@@ -16,11 +16,7 @@ pub opaque type Msg {
   BounceY
 }
 
-pub fn init(
-  render_context: RenderContext,
-  radius: Float,
-  speed: Float,
-) -> #(Model, Effect(Msg)) {
+pub fn init(render_context: RenderContext, radius: Float, speed: Float) {
   let model =
     Model(
       pos: Vector2(
@@ -31,32 +27,11 @@ pub fn init(
       radius: radius,
       speed: speed,
     )
-  #(model, effect.none())
+
+  create_renderer(model, on_frame: frame, on_update: update, on_render: render)
 }
 
-pub fn update(
-  _render_context: RenderContext,
-  model: Model,
-  _frame: Int,
-  msg: Msg,
-) -> #(Model, Effect(Msg)) {
-  case msg {
-    Move -> #(
-      Model(..model, pos: vector2.add(model.pos, model.delta)),
-      effect.none(),
-    )
-    BounceX -> #(
-      Model(..model, delta: Vector2(model.delta.x *. -1.0, model.delta.y)),
-      effect.none(),
-    )
-    BounceY -> #(
-      Model(..model, delta: Vector2(model.delta.x, model.delta.y *. -1.0)),
-      effect.none(),
-    )
-  }
-}
-
-pub fn frame(render_context: RenderContext, model: Model, _frame: Int) -> Msg {
+fn frame(model: Model, render_context: RenderContext) -> Msg {
   let width = render_context.viewport_size.x
   let height = render_context.viewport_size.y
   let x = model.pos.x
@@ -78,11 +53,24 @@ pub fn frame(render_context: RenderContext, model: Model, _frame: Int) -> Msg {
   }
 }
 
-pub fn render(
-  _render_context: RenderContext,
-  model: Model,
-  _frame: Int,
+fn update(msg: Msg, model: Model, _render_context: RenderContext) -> Model {
+  case msg {
+    Move -> {
+      Model(..model, pos: vector2.add(model.pos, model.delta))
+    }
+    BounceX -> {
+      Model(..model, delta: Vector2(model.delta.x *. -1.0, model.delta.y))
+    }
+    BounceY -> {
+      Model(..model, delta: Vector2(model.delta.x, model.delta.y *. -1.0))
+    }
+  }
+}
+
+fn render(
   ctx: CanvasRenderingContext2D,
+  model: Model,
+  _render_context: RenderContext,
 ) {
   canvas.with_path(ctx, fn(c) {
     c
