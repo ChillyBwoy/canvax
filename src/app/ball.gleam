@@ -1,7 +1,7 @@
 import app/context.{type RenderContext}
 import canvax/canvas.{type CanvasRenderingContext2D}
 import canvax/primitives/vector2.{type Vector2, Vector2}
-import canvax/renderer.{create_renderer}
+import canvax/scene.{create_node}
 
 import gleam/float
 import gleam_community/maths/elementary as math
@@ -28,7 +28,7 @@ pub fn init(render_context: RenderContext, radius: Float, speed: Float) {
       speed: speed,
     )
 
-  create_renderer(model, on_frame: frame, on_update: update, on_render: render)
+  create_node(model, on_frame: frame, on_update: update, on_render: render)
 }
 
 fn frame(model: Model, render_context: RenderContext) -> Msg {
