@@ -1,6 +1,6 @@
 import { None } from "../gleam_stdlib/gleam/option.mjs";
 import { Ok, Error } from "./gleam.mjs";
-import { Vector2 } from "./canvax/primitives.mjs";
+import { Vector2 } from "./canvax/primitives/vector2.mjs";
 
 export function getContext($el, options) {
   const ctx = $el.getContext("2d", options);

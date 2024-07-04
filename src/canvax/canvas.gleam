@@ -1,5 +1,5 @@
 import canvax/html.{type HTMLCanvasElement}
-import canvax/primitives.{type Vector2}
+import canvax/primitives/vector2.{type Vector2}
 
 pub type Path2D
 
@@ -68,22 +68,22 @@ pub fn stroke_style(
 @external(javascript, "../context.ffi.mjs", "fillRect")
 pub fn fill_rect(
   ctx: CanvasRenderingContext2D,
-  pos: Vector2(Float),
-  size: Vector2(Float),
+  pos: Vector2,
+  size: Vector2,
 ) -> CanvasRenderingContext2D
 
 @external(javascript, "../context.ffi.mjs", "clearRect")
 pub fn clear_rect(
   ctx: CanvasRenderingContext2D,
-  pos: Vector2(Float),
-  size: Vector2(Float),
+  pos: Vector2,
+  size: Vector2,
 ) -> CanvasRenderingContext2D
 
 @external(javascript, "../context.ffi.mjs", "strokeRect")
 pub fn stroke_rect(
   ctx: CanvasRenderingContext2D,
-  pos: Vector2(Float),
-  size: Vector2(Float),
+  pos: Vector2,
+  size: Vector2,
 ) -> CanvasRenderingContext2D
 
 // CanvasRect END
@@ -93,7 +93,7 @@ pub fn stroke_rect(
 @external(javascript, "../context.ffi.mjs", "arc")
 pub fn arc(
   ctx: CanvasRenderingContext2D,
-  pos: Vector2(Float),
+  pos: Vector2,
   radius: Float,
   start_angle: Float,
   end_angle: Float,
@@ -102,7 +102,7 @@ pub fn arc(
 @external(javascript, "../context.ffi.mjs", "arc")
 pub fn arc2(
   ctx: CanvasRenderingContext2D,
-  pos: Vector2(Float),
+  pos: Vector2,
   radius: Float,
   start_angle: Float,
   end_angle: Float,
@@ -112,17 +112,17 @@ pub fn arc2(
 @external(javascript, "../context.ffi.mjs", "arcTo")
 pub fn arc_to(
   ctx: CanvasRenderingContext2D,
-  from: Vector2(Float),
-  to: Vector2(Float),
+  from: Vector2,
+  to: Vector2,
   radius: Int,
 ) -> CanvasRenderingContext2D
 
 @external(javascript, "../context.ffi.mjs", "bezierCurveTo")
 pub fn bezier_curve_to(
   ctx: CanvasRenderingContext2D,
-  cp1: Vector2(Float),
-  cp2: Vector2(Float),
-  pos: Vector2(Float),
+  cp1: Vector2,
+  cp2: Vector2,
+  pos: Vector2,
 ) -> CanvasRenderingContext2D
 
 @external(javascript, "../context.ffi.mjs", "closePath")
@@ -131,7 +131,7 @@ pub fn close_path(ctx: CanvasRenderingContext2D) -> CanvasRenderingContext2D
 @external(javascript, "../context.ffi.mjs", "ellipse")
 pub fn ellipse(
   ctx: CanvasRenderingContext2D,
-  pos: Vector2(Float),
+  pos: Vector2,
   radius: Int,
   rotation: Float,
   start_angle: Float,
@@ -141,7 +141,7 @@ pub fn ellipse(
 @external(javascript, "../context.ffi.mjs", "ellipse")
 pub fn ellipse2(
   ctx: CanvasRenderingContext2D,
-  pos: Vector2(Float),
+  pos: Vector2,
   radius: Int,
   rotation: Float,
   start_angle: Float,
@@ -152,33 +152,33 @@ pub fn ellipse2(
 @external(javascript, "../context.ffi.mjs", "lineTo")
 pub fn line_to(
   ctx: CanvasRenderingContext2D,
-  coord: Vector2(Float),
+  coord: Vector2,
 ) -> CanvasRenderingContext2D
 
 @external(javascript, "../context.ffi.mjs", "moveTo")
 pub fn move_to(
   ctx: CanvasRenderingContext2D,
-  coord: Vector2(Float),
+  coord: Vector2,
 ) -> CanvasRenderingContext2D
 
 @external(javascript, "../context.ffi.mjs", "quadraticCurveTo")
 pub fn quadratic_curve_to(
   ctx: CanvasRenderingContext2D,
-  cp: Vector2(Float),
-  point: Vector2(Float),
+  cp: Vector2,
+  point: Vector2,
 ) -> CanvasRenderingContext2D
 
 @external(javascript, "../context.ffi.mjs", "rect")
 pub fn rect(
   ctx: CanvasRenderingContext2D,
-  pos: Vector2(Float),
-  size: Vector2(Float),
+  pos: Vector2,
+  size: Vector2,
 ) -> CanvasRenderingContext2D
 
 pub fn round_rect(
   _ctx: CanvasRenderingContext2D,
-  _pos: Vector2(Float),
-  _size: Vector2(Float),
+  _pos: Vector2,
+  _size: Vector2,
   _radii: Float,
 ) -> CanvasRenderingContext2D {
   todo
@@ -251,21 +251,18 @@ pub fn fill4(
 }
 
 @external(javascript, "../context.ffi.mjs", "isPointInPath")
-pub fn is_point_in_path(
-  ctx: CanvasRenderingContext2D,
-  pos: Vector2(Float),
-) -> Bool
+pub fn is_point_in_path(ctx: CanvasRenderingContext2D, pos: Vector2) -> Bool
 
 @external(javascript, "../context.ffi.mjs", "isPointInPath")
 fn is_point_in_path2_ffi(
   ctx: CanvasRenderingContext2D,
-  pos: Vector2(Float),
+  pos: Vector2,
   fill_rule: String,
 ) -> Bool
 
 pub fn is_point_in_path2(
   ctx: CanvasRenderingContext2D,
-  pos: Vector2(Float),
+  pos: Vector2,
   fill_rule: CanvasFillRule,
 ) {
   is_point_in_path2_ffi(ctx, pos, canvas_fill_rule(fill_rule))
@@ -274,7 +271,7 @@ pub fn is_point_in_path2(
 pub fn is_point_in_path3(
   _ctx: CanvasRenderingContext2D,
   _path: Path2D,
-  _pos: Vector2(Float),
+  _pos: Vector2,
 ) -> Bool {
   todo
 }
@@ -282,23 +279,20 @@ pub fn is_point_in_path3(
 pub fn is_point_in_path4(
   _ctx: CanvasRenderingContext2D,
   _path: Path2D,
-  _pos: Vector2(Float),
+  _pos: Vector2,
   _fill_rule: CanvasFillRule,
 ) -> Bool {
   todo
 }
 
-pub fn is_point_in_stroke(
-  _ctx: CanvasRenderingContext2D,
-  _pos: Vector2(Float),
-) -> Bool {
+pub fn is_point_in_stroke(_ctx: CanvasRenderingContext2D, _pos: Vector2) -> Bool {
   todo
 }
 
 pub fn is_point_in_stroke2(
   _ctx: CanvasRenderingContext2D,
   _path: Path2D,
-  _pos: Vector2(Float),
+  _pos: Vector2,
 ) -> Bool {
   todo
 }

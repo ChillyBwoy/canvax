@@ -5,12 +5,11 @@ export function getElementById(id) {
   return $el ? new Ok($el) : new Error(null);
 }
 
-export function raf(initialState, callback) {
+export function raf(callback) {
   let delta = 0;
-  let state = initialState;
 
   const render = () => {
-    state = callback(state, ++delta);
+    callback(++delta);
     requestAnimationFrame(render);
   };
 
