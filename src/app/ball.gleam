@@ -1,5 +1,5 @@
-import app/context.{type RenderContext}
-import canvax/canvas.{type CanvasRenderingContext2D}
+import app/render_context.{type RenderContext}
+import canvax/canvas/context.{type CanvasRenderingContext2D}
 import canvax/primitives/vector2.{type Vector2, Vector2}
 import canvax/scene.{create_node}
 
@@ -20,8 +20,8 @@ pub fn init(render_context: RenderContext, radius: Float, speed: Float) {
   let model =
     Model(
       pos: Vector2(
-        render_context.viewport_size.x *. float.random(),
-        render_context.viewport_size.y *. float.random(),
+        render_context.viewport_size.x /. 2.0 *. float.random() +. radius,
+        render_context.viewport_size.y /. 2.0 *. float.random() +. radius,
       ),
       delta: Vector2(speed *. float.random(), speed *. float.random()),
       radius: radius,
@@ -53,7 +53,7 @@ fn frame(model: Model, render_context: RenderContext) -> Msg {
   }
 }
 
-fn update(msg: Msg, model: Model, _render_context: RenderContext) -> Model {
+fn update(msg: Msg, model: Model, _: RenderContext) -> Model {
   case msg {
     Move -> {
       Model(..model, pos: vector2.add(model.pos, model.delta))
@@ -67,18 +67,14 @@ fn update(msg: Msg, model: Model, _render_context: RenderContext) -> Model {
   }
 }
 
-fn render(
-  ctx: CanvasRenderingContext2D,
-  model: Model,
-  _render_context: RenderContext,
-) {
-  canvas.with_path(ctx, fn(c) {
+fn render(ctx: CanvasRenderingContext2D, model: Model, _: RenderContext) {
+  context.with_path(ctx, fn(c) {
     c
-    |> canvas.arc(model.pos, model.radius, 0.0, math.pi() *. 2.0)
-    |> canvas.fill_style("#ffaff3")
-    |> canvas.fill()
-    |> canvas.stroke_style("#000")
-    |> canvas.stroke()
+    |> context.arc(model.pos, model.radius, 0.0, math.pi() *. 2.0)
+    |> context.fill_style("#ffaff3")
+    |> context.fill()
+    |> context.stroke_style("#000")
+    |> context.stroke()
   })
   Nil
 }

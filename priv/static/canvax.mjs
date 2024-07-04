@@ -99,6 +99,13 @@ var Error = class extends Result {
     return false;
   }
 };
+function divideFloat(a, b) {
+  if (b === 0) {
+    return 0;
+  } else {
+    return a / b;
+  }
+}
 function makeError(variant, module, line, fn, message, extra) {
   let error = new globalThis.Error(message);
   error.gleam_error = variant;
@@ -166,7 +173,7 @@ function add2(v1, v2) {
   return new Vector2(v1.x + v2.x, v1.y + v2.y);
 }
 
-// build/dev/javascript/canvax/app/context.mjs
+// build/dev/javascript/canvax/app/render_context.mjs
 var RenderContext = class extends CustomType {
   constructor(viewport_size) {
     super();
@@ -230,7 +237,7 @@ function closePath(ctx) {
   return ctx;
 }
 
-// build/dev/javascript/canvax/canvax/canvas.mjs
+// build/dev/javascript/canvax/canvax/canvas/context.mjs
 function with_path(ctx, callback) {
   let _pipe = beginPath(ctx);
   let _pipe$1 = callback(_pipe);
@@ -336,8 +343,8 @@ function render2(ctx, model, _) {
 function init(render_context, radius, speed) {
   let model = new Model(
     new Vector2(
-      render_context.viewport_size.x * random_uniform(),
-      render_context.viewport_size.y * random_uniform()
+      divideFloat(render_context.viewport_size.x, 2) * random_uniform() + radius,
+      divideFloat(render_context.viewport_size.y, 2) * random_uniform() + radius
     ),
     new Vector2(speed * random_uniform(), speed * random_uniform()),
     radius,
@@ -364,10 +371,15 @@ function update2(msg, model, _) {
   return model;
 }
 function render3(ctx, model, _) {
-  let _pipe = ctx;
-  let _pipe$1 = fillStyle(_pipe, model.color);
-  let _pipe$2 = fillRect(_pipe$1, model.pos, model.size);
-  stroke(_pipe$2);
+  with_path(
+    ctx,
+    (c) => {
+      let _pipe = c;
+      let _pipe$1 = fillStyle(_pipe, model.color);
+      let _pipe$2 = fillRect(_pipe$1, model.pos, model.size);
+      return stroke(_pipe$2);
+    }
+  );
   return void 0;
 }
 function init2(render_context, size, color) {
@@ -422,13 +434,21 @@ function main() {
   let ctx = $2[0];
   let render_context = new RenderContext(rect2);
   let scene = toList([
-    init(render_context, 10, 5),
-    init(render_context, 12, 3),
-    init(render_context, 8, 8),
-    init(render_context, 5, 10),
     init2(render_context, 50, "#880000"),
     init2(render_context, 25, "#008800"),
-    init2(render_context, 40, "#880088")
+    init2(render_context, 40, "#880088"),
+    init(render_context, 10, 5),
+    init(render_context, 12, 3),
+    init(render_context, 15, 8),
+    init(render_context, 8, 10),
+    init(render_context, 10, 5),
+    init(render_context, 12, 3),
+    init(render_context, 15, 8),
+    init(render_context, 8, 10),
+    init(render_context, 10, 5),
+    init(render_context, 12, 3),
+    init(render_context, 15, 8),
+    init(render_context, 8, 10)
   ]);
   return raf(
     (_) => {

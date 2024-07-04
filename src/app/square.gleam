@@ -1,5 +1,5 @@
-import app/context.{type RenderContext}
-import canvax/canvas.{type CanvasRenderingContext2D}
+import app/render_context.{type RenderContext}
+import canvax/canvas/context.{type CanvasRenderingContext2D}
 import canvax/primitives/vector2.{type Vector2, Vector2}
 import canvax/scene.{create_node}
 
@@ -41,9 +41,12 @@ fn render(
   model: Model,
   _render_context: RenderContext,
 ) {
-  ctx
-  |> canvas.fill_style(model.color)
-  |> canvas.fill_rect(model.pos, model.size)
-  |> canvas.stroke()
+  context.with_path(ctx, fn(c) {
+    c
+    |> context.fill_style(model.color)
+    |> context.fill_rect(model.pos, model.size)
+    |> context.stroke()
+  })
+
   Nil
 }
