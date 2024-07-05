@@ -7,6 +7,16 @@ export function getContext($el, options) {
   return ctx ? new Ok(ctx) : new Error(null);
 }
 
+export function save(ctx) {
+  ctx.save();
+  return ctx;
+}
+
+export function restore(ctx) {
+  ctx.restore();
+  return ctx;
+}
+
 // CanvasDrawPath START
 export function beginPath(ctx) {
   ctx.beginPath();
@@ -177,7 +187,7 @@ export function transform(ctx, ...args) {
 }
 
 export function translate(ctx, pos) {
-  ctx.transform(pos.x, pos.y);
+  ctx.translate(pos.x, pos.y);
   return ctx;
 }
 // CanvasTransform END

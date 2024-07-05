@@ -37,6 +37,12 @@ fn canvas_fill_rule(rule: CanvasFillRule) -> String {
   }
 }
 
+@external(javascript, "../../context.ffi.mjs", "save")
+pub fn save(ctx: CanvasRenderingContext2D) -> CanvasRenderingContext2D
+
+@external(javascript, "../../context.ffi.mjs", "restore")
+pub fn restore(ctx: CanvasRenderingContext2D) -> CanvasRenderingContext2D
+
 // CanvasFillStrokeStyles START
 @external(javascript, "../../context.ffi.mjs", "fillStyle")
 pub fn fill_style(
