@@ -31,13 +31,13 @@ export function fill(ctx, ...args) {
 export function isPointInPath(ctx, ...args) {
   // isPointInPath(x: number, y: number, fillRule?: CanvasFillRule): boolean;
   // isPointInPath(path: Path2D, x: number, y: number, fillRule?: CanvasFillRule): boolean;
-  throw new Error("Not implemented");
+  return ctx.isPointInPath(...args);
 }
 
 export function isPointInStroke(ctx, ...args) {
   // isPointInStroke(x: number, y: number): boolean;
   // isPointInStroke(path: Path2D, x: number, y: number): boolean;
-  throw new Error("Not implemented");
+  return ctx.isPointInStroke(...args);
 }
 
 export function stroke(ctx) {
@@ -138,9 +138,46 @@ export function rect(ctx, pos, size) {
   return ctx;
 }
 
-export function roundRect(ctx) {
+export function roundRect(ctx, pos, size, radii) {
   // roundRect(x: number, y: number, w: number, h: number, radii?: number | DOMPointInit | (number | DOMPointInit)[]): void;
-  throw new Error("Not implemented");
+  ctx.roundRect(pos.x, pos.y, size.x, size.y, radii);
+  return ctx;
 }
 
 // CanvasPath END
+
+// CanvasTransform START
+export function getTransform(ctx) {
+  return ctx.getTransform();
+}
+
+export function resetTransform(ctx) {
+  ctx.resetTransform();
+  return ctx;
+}
+
+export function rotate(ctx, angle) {
+  ctx.rotate(angle);
+  return ctx;
+}
+
+export function scale(ctx, pos) {
+  ctx.scale(angle);
+  return ctx;
+}
+
+export function setTransform(ctx, ...args) {
+  ctx.setTransform(...args);
+  return ctx;
+}
+
+export function transform(ctx, ...args) {
+  ctx.transform(...args);
+  return ctx;
+}
+
+export function translate(ctx, pos) {
+  ctx.transform(pos.x, pos.y);
+  return ctx;
+}
+// CanvasTransform END

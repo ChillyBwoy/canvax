@@ -11,5 +11,3 @@ pub fn predefined_color_space(model: PredefinedColorSpace) -> String {
     SRGB -> "srgb"
   }
 }
-
-pub type DOMMatrix2DInit

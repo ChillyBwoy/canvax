@@ -24,17 +24,19 @@ pub type DOMMatrix {
     m44: Float,
   )
 }
-//     invertSelf(): DOMMatrix;
-//     multiplySelf(other?: DOMMatrixInit): DOMMatrix;
-//     preMultiplySelf(other?: DOMMatrixInit): DOMMatrix;
-//     rotateAxisAngleSelf(x?: number, y?: number, z?: number, angle?: number): DOMMatrix;
-//     rotateFromVectorSelf(x?: number, y?: number): DOMMatrix;
-//     rotateSelf(rotX?: number, rotY?: number, rotZ?: number): DOMMatrix;
-//     /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrix/scale3dSelf) */
-//     scale3dSelf(scale?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix;
-//     /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrix/scaleSelf) */
-//     scaleSelf(scaleX?: number, scaleY?: number, scaleZ?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix;
-//     setMatrixValue(transformList: string): DOMMatrix;
-//     skewXSelf(sx?: number): DOMMatrix;
-//     skewYSelf(sy?: number): DOMMatrix;
-//     translateSelf(tx?: number, ty?: number, tz?: number): DOMMatrix;
+// TODO:
+// 
+// invertSelf(): DOMMatrix;
+// multiplySelf(other?: DOMMatrixInit): DOMMatrix;
+// preMultiplySelf(other?: DOMMatrixInit): DOMMatrix;
+// rotateAxisAngleSelf(x?: number, y?: number, z?: number, angle?: number): DOMMatrix;
+// rotateFromVectorSelf(x?: number, y?: number): DOMMatrix;
+// rotateSelf(rotX?: number, rotY?: number, rotZ?: number): DOMMatrix;
+// /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrix/scale3dSelf) */
+// scale3dSelf(scale?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix;
+// /** [MDN Reference](https://developer.mozilla.org/docs/Web/API/DOMMatrix/scaleSelf) */
+// scaleSelf(scaleX?: number, scaleY?: number, scaleZ?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix;
+// setMatrixValue(transformList: string): DOMMatrix;
+// skewXSelf(sx?: number): DOMMatrix;
+// skewYSelf(sy?: number): DOMMatrix;
+// translateSelf(tx?: number, ty?: number, tz?: number): DOMMatrix;
