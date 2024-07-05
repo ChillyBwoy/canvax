@@ -1,4 +1,4 @@
-import canvax/canvas.{type CanvasRenderingContext2D}
+import canvax/canvas/context.{type CanvasRenderingContext2D}
 
 @external(javascript, "../common.ffi.mjs", "render")
 fn render_ffi(

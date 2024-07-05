@@ -1,49 +1,61 @@
-import app/context.{type RenderContext}
-import canvax/canvas.{type CanvasRenderingContext2D}
+import app/render_context.{type RenderContext}
+import canvax/canvas/context.{type CanvasRenderingContext2D}
+import canvax/primitives/vector2 as v2
 import canvax/primitives/vector2.{type Vector2, Vector2}
 import canvax/scene.{create_node}
-
-import gleam/float
+import gleam_community/maths/elementary as math
 
 pub opaque type Model {
-  Model(pos: Vector2, size: Vector2, color: String)
+  Model(pos: Vector2, size: Float, velocity: Float, color: String, angle: Float)
 }
 
 pub opaque type Msg {
-  NoOp
+  Noop
 }
 
-pub fn init(render_context: RenderContext, size: Float, color: String) {
-  let model =
-    Model(
-      pos: Vector2(
-        render_context.viewport_size.x *. float.random(),
-        render_context.viewport_size.y *. float.random(),
-      ),
-      size: Vector2(size, size),
-      color: color,
-    )
-  create_node(model, on_frame: frame, on_update: update, on_render: render)
+pub fn init(
+  _: RenderContext,
+  position pos: Vector2,
+  size size: Float,
+  velocity velocity: Float,
+  color color: String,
+) {
+  Model(pos: pos, size: size, velocity: velocity, color: color, angle: 0.0)
+  |> create_node(on_frame: frame, on_update: update, on_render: render)
 }
 
 fn frame(_model: Model, _render_context: RenderContext) -> Msg {
-  NoOp
+  Noop
 }
 
-fn update(msg: Msg, model: Model, _render_context: RenderContext) -> Model {
-  case msg {
-    NoOp -> model
+fn update(_: Msg, model: Model, _render_context: RenderContext) -> Model {
+  let next_angle = model.angle +. 1.0
+
+  case next_angle {
+    a if a >. 360.0 -> Model(..model, angle: 0.0)
+    _ -> Model(..model, angle: next_angle)
   }
 }
 
-fn render(
-  ctx: CanvasRenderingContext2D,
-  model: Model,
-  _render_context: RenderContext,
-) {
+fn render(ctx: CanvasRenderingContext2D, model: Model, _: RenderContext) {
+  let offset = Vector2(model.size, model.size) |> v2.div(2.0)
+  let translate_to = model.pos |> v2.add(offset)
+  let angle = model.angle *. math.pi() /. 180.0 *. model.velocity
+
   ctx
-  |> canvas.fill_style(model.color)
-  |> canvas.fill_rect(model.pos, model.size)
-  |> canvas.stroke()
+  |> context.save()
+  |> context.translate(translate_to)
+  |> context.rotate(angle)
+  |> context.translate(translate_to |> v2.negate())
+  |> context.with_path(fn(_) {
+    ctx
+    |> context.rect(model.pos, Vector2(model.size, model.size))
+    |> context.fill_style(model.color)
+    |> context.fill()
+    |> context.stroke_style("#000")
+    |> context.stroke()
+  })
+  |> context.restore()
+
   Nil
 }

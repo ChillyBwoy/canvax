@@ -1,12 +1,9 @@
+import canvax/canvas/common.{type PredefinedColorSpace}
+import canvax/canvas/dot_matrix.{type DOMMatrix}
 import canvax/html.{type HTMLCanvasElement}
 import canvax/primitives/vector2.{type Vector2}
 
-pub type Path2D
-
-pub type PredefinedColorSpace {
-  DisplayP3
-  SRGB
-}
+pub type CanvasRenderingContext2D
 
 pub type CanvasRenderingContext2DSettings {
   CanvasRenderingContext2DSettings(
@@ -17,25 +14,16 @@ pub type CanvasRenderingContext2DSettings {
   )
 }
 
-pub type CanvasRenderingContext2D
-
-@external(javascript, "../context.ffi.mjs", "getContext")
+@external(javascript, "../../context.ffi.mjs", "getContext")
 pub fn get_context(
   _: HTMLCanvasElement,
 ) -> Result(CanvasRenderingContext2D, Nil)
 
-@external(javascript, "../context.ffi.mjs", "getContext")
+@external(javascript, "../../context.ffi.mjs", "getContext")
 pub fn get_context2(
   _: HTMLCanvasElement,
   _: CanvasRenderingContext2DSettings,
 ) -> Result(CanvasRenderingContext2D, Nil)
-
-pub fn predefined_color_space(model: PredefinedColorSpace) -> String {
-  case model {
-    DisplayP3 -> "display-p3"
-    SRGB -> "srgb"
-  }
-}
 
 pub type CanvasFillRule {
   EvenOdd
@@ -49,14 +37,20 @@ fn canvas_fill_rule(rule: CanvasFillRule) -> String {
   }
 }
 
+@external(javascript, "../../context.ffi.mjs", "save")
+pub fn save(ctx: CanvasRenderingContext2D) -> CanvasRenderingContext2D
+
+@external(javascript, "../../context.ffi.mjs", "restore")
+pub fn restore(ctx: CanvasRenderingContext2D) -> CanvasRenderingContext2D
+
 // CanvasFillStrokeStyles START
-@external(javascript, "../context.ffi.mjs", "fillStyle")
+@external(javascript, "../../context.ffi.mjs", "fillStyle")
 pub fn fill_style(
   ctx: CanvasRenderingContext2D,
   style: String,
 ) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "strokeStyle")
+@external(javascript, "../../context.ffi.mjs", "strokeStyle")
 pub fn stroke_style(
   ctx: CanvasRenderingContext2D,
   style: String,
@@ -65,21 +59,21 @@ pub fn stroke_style(
 // CanvasFillStrokeStyles END
 
 // CanvasRect START
-@external(javascript, "../context.ffi.mjs", "fillRect")
+@external(javascript, "../../context.ffi.mjs", "fillRect")
 pub fn fill_rect(
   ctx: CanvasRenderingContext2D,
   pos: Vector2,
   size: Vector2,
 ) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "clearRect")
+@external(javascript, "../../context.ffi.mjs", "clearRect")
 pub fn clear_rect(
   ctx: CanvasRenderingContext2D,
   pos: Vector2,
   size: Vector2,
 ) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "strokeRect")
+@external(javascript, "../../context.ffi.mjs", "strokeRect")
 pub fn stroke_rect(
   ctx: CanvasRenderingContext2D,
   pos: Vector2,
@@ -90,7 +84,7 @@ pub fn stroke_rect(
 
 // CanvasPath START
 
-@external(javascript, "../context.ffi.mjs", "arc")
+@external(javascript, "../../context.ffi.mjs", "arc")
 pub fn arc(
   ctx: CanvasRenderingContext2D,
   pos: Vector2,
@@ -99,7 +93,7 @@ pub fn arc(
   end_angle: Float,
 ) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "arc")
+@external(javascript, "../../context.ffi.mjs", "arc")
 pub fn arc2(
   ctx: CanvasRenderingContext2D,
   pos: Vector2,
@@ -109,7 +103,7 @@ pub fn arc2(
   counterclockwise: Bool,
 ) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "arcTo")
+@external(javascript, "../../context.ffi.mjs", "arcTo")
 pub fn arc_to(
   ctx: CanvasRenderingContext2D,
   from: Vector2,
@@ -117,7 +111,7 @@ pub fn arc_to(
   radius: Int,
 ) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "bezierCurveTo")
+@external(javascript, "../../context.ffi.mjs", "bezierCurveTo")
 pub fn bezier_curve_to(
   ctx: CanvasRenderingContext2D,
   cp1: Vector2,
@@ -125,10 +119,10 @@ pub fn bezier_curve_to(
   pos: Vector2,
 ) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "closePath")
+@external(javascript, "../../context.ffi.mjs", "closePath")
 pub fn close_path(ctx: CanvasRenderingContext2D) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "ellipse")
+@external(javascript, "../../context.ffi.mjs", "ellipse")
 pub fn ellipse(
   ctx: CanvasRenderingContext2D,
   pos: Vector2,
@@ -138,7 +132,7 @@ pub fn ellipse(
   end_angle: Float,
 ) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "ellipse")
+@external(javascript, "../../context.ffi.mjs", "ellipse")
 pub fn ellipse2(
   ctx: CanvasRenderingContext2D,
   pos: Vector2,
@@ -149,51 +143,50 @@ pub fn ellipse2(
   counterclockwise: Bool,
 ) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "lineTo")
+@external(javascript, "../../context.ffi.mjs", "lineTo")
 pub fn line_to(
   ctx: CanvasRenderingContext2D,
   coord: Vector2,
 ) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "moveTo")
+@external(javascript, "../../context.ffi.mjs", "moveTo")
 pub fn move_to(
   ctx: CanvasRenderingContext2D,
   coord: Vector2,
 ) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "quadraticCurveTo")
+@external(javascript, "../../context.ffi.mjs", "quadraticCurveTo")
 pub fn quadratic_curve_to(
   ctx: CanvasRenderingContext2D,
   cp: Vector2,
   point: Vector2,
 ) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "rect")
+@external(javascript, "../../context.ffi.mjs", "rect")
 pub fn rect(
   ctx: CanvasRenderingContext2D,
   pos: Vector2,
   size: Vector2,
 ) -> CanvasRenderingContext2D
 
+@external(javascript, "../../context.ffi.mjs", "roundRect")
 pub fn round_rect(
-  _ctx: CanvasRenderingContext2D,
-  _pos: Vector2,
-  _size: Vector2,
-  _radii: Float,
-) -> CanvasRenderingContext2D {
-  todo
-}
+  ctx: CanvasRenderingContext2D,
+  pos: Vector2,
+  size: Vector2,
+  radii: Float,
+) -> CanvasRenderingContext2D
 
 // CanvasPath END
 
 // CanvasDrawPath START
-@external(javascript, "../context.ffi.mjs", "beginPath")
+@external(javascript, "../../context.ffi.mjs", "beginPath")
 pub fn begin_path(ctx: CanvasRenderingContext2D) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "clip")
+@external(javascript, "../../context.ffi.mjs", "clip")
 pub fn clip(ctx: CanvasRenderingContext2D) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "clip")
+@external(javascript, "../../context.ffi.mjs", "clip")
 fn clip2_ffi(
   ctx: CanvasRenderingContext2D,
   fill_rule: String,
@@ -203,23 +196,13 @@ pub fn clip2(
   ctx: CanvasRenderingContext2D,
   fill_rule: CanvasFillRule,
 ) -> CanvasRenderingContext2D {
-  // clip(fillRule?: CanvasFillRule): void;
   clip2_ffi(ctx, canvas_fill_rule(fill_rule))
 }
 
-pub fn clip3(
-  _ctx: CanvasRenderingContext2D,
-  _path: Path2D,
-  _fill_rule: CanvasFillRule,
-) -> CanvasRenderingContext2D {
-  // clip(path: Path2D, fillRule?: CanvasFillRule): void;
-  todo
-}
-
-@external(javascript, "../context.ffi.mjs", "fill")
+@external(javascript, "../../context.ffi.mjs", "fill")
 pub fn fill(ctx: CanvasRenderingContext2D) -> CanvasRenderingContext2D
 
-@external(javascript, "../context.ffi.mjs", "fill")
+@external(javascript, "../../context.ffi.mjs", "fill")
 fn fill2_ffi(
   ctx: CanvasRenderingContext2D,
   fill_rule: String,
@@ -229,31 +212,13 @@ pub fn fill2(
   ctx: CanvasRenderingContext2D,
   fill_rule: CanvasFillRule,
 ) -> CanvasRenderingContext2D {
-  // fill(fillRule?: CanvasFillRule): void;
   fill2_ffi(ctx, canvas_fill_rule(fill_rule))
 }
 
-pub fn fill3(
-  _ctx: CanvasRenderingContext2D,
-  _path: Path2D,
-) -> CanvasRenderingContext2D {
-  // fill(path: Path2D, fillRule?: CanvasFillRule): void;
-  todo
-}
-
-pub fn fill4(
-  _ctx: CanvasRenderingContext2D,
-  _path: Path2D,
-  _rule: CanvasFillRule,
-) -> CanvasRenderingContext2D {
-  // fill(path: Path2D, fillRule?: CanvasFillRule): void;
-  todo
-}
-
-@external(javascript, "../context.ffi.mjs", "isPointInPath")
+@external(javascript, "../../context.ffi.mjs", "isPointInPath")
 pub fn is_point_in_path(ctx: CanvasRenderingContext2D, pos: Vector2) -> Bool
 
-@external(javascript, "../context.ffi.mjs", "isPointInPath")
+@external(javascript, "../../context.ffi.mjs", "isPointInPath")
 fn is_point_in_path2_ffi(
   ctx: CanvasRenderingContext2D,
   pos: Vector2,
@@ -268,46 +233,68 @@ pub fn is_point_in_path2(
   is_point_in_path2_ffi(ctx, pos, canvas_fill_rule(fill_rule))
 }
 
-pub fn is_point_in_path3(
-  _ctx: CanvasRenderingContext2D,
-  _path: Path2D,
-  _pos: Vector2,
-) -> Bool {
-  todo
-}
+@external(javascript, "../../context.ffi.mjs", "isPointInStroke")
+pub fn is_point_in_stroke(ctx: CanvasRenderingContext2D, pos: Vector2) -> Bool
 
-pub fn is_point_in_path4(
-  _ctx: CanvasRenderingContext2D,
-  _path: Path2D,
-  _pos: Vector2,
-  _fill_rule: CanvasFillRule,
-) -> Bool {
-  todo
-}
-
-pub fn is_point_in_stroke(_ctx: CanvasRenderingContext2D, _pos: Vector2) -> Bool {
-  todo
-}
-
-pub fn is_point_in_stroke2(
-  _ctx: CanvasRenderingContext2D,
-  _path: Path2D,
-  _pos: Vector2,
-) -> Bool {
-  todo
-}
-
-@external(javascript, "../context.ffi.mjs", "stroke")
+@external(javascript, "../../context.ffi.mjs", "stroke")
 pub fn stroke(ctx: CanvasRenderingContext2D) -> CanvasRenderingContext2D
 
-pub fn stroke2(
-  _ctx: CanvasRenderingContext2D,
-  _path: Path2D,
-) -> CanvasRenderingContext2D {
-  todo
-}
-
 // CanvasDrawPath END
+
+// [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/getTransform)
+@external(javascript, "../../context.ffi.mjs", "getTransform")
+pub fn get_transform(ctx: CanvasRenderingContext2D) -> DOMMatrix
+
+// [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/resetTransform)
+@external(javascript, "../../context.ffi.mjs", "resetTransform")
+pub fn reset_transform(
+  ctx: CanvasRenderingContext2D,
+) -> CanvasRenderingContext2D
+
+// [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/rotate)
+@external(javascript, "../../context.ffi.mjs", "rotate")
+pub fn rotate(
+  ctx: CanvasRenderingContext2D,
+  angle: Float,
+) -> CanvasRenderingContext2D
+
+// [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/scale)
+@external(javascript, "../../context.ffi.mjs", "scale")
+pub fn scale(
+  ctx: CanvasRenderingContext2D,
+  pos: Vector2,
+) -> CanvasRenderingContext2D
+
+// [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/setTransform)
+@external(javascript, "../../context.ffi.mjs", "setTransform")
+pub fn set_transform(
+  ctx: CanvasRenderingContext2D,
+  a: Float,
+  b: Float,
+  c: Float,
+  d: Float,
+  e: Float,
+  f: Float,
+) -> CanvasRenderingContext2D
+
+// [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/transform)
+@external(javascript, "../../context.ffi.mjs", "transform")
+pub fn transform(
+  ctx: CanvasRenderingContext2D,
+  a: Float,
+  b: Float,
+  c: Float,
+  d: Float,
+  e: Float,
+  f: Float,
+) -> CanvasRenderingContext2D
+
+// [MDN Reference](https://developer.mozilla.org/docs/Web/API/CanvasRenderingContext2D/translate)
+@external(javascript, "../../context.ffi.mjs", "translate")
+pub fn translate(
+  ctx: CanvasRenderingContext2D,
+  pos: Vector2,
+) -> CanvasRenderingContext2D
 
 // ---------- Utility Functions ----------
 
