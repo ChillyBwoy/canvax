@@ -14,3 +14,7 @@ export function render(initialState, callback) {
 
   return run;
 }
+
+export function create_scene_node() {
+  throw new Error("not implemented");
+}

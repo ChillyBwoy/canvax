@@ -1,9 +1,14 @@
 import app/render_context.{type RenderContext}
 import canvax/canvas/context.{type CanvasRenderingContext2D}
+import canvax/effect.{type Effect}
 import canvax/primitives/vector2 as v2
 import canvax/primitives/vector2.{type Vector2, Vector2}
 import canvax/scene.{create_node}
 import gleam_community/maths/elementary as math
+
+pub type ModelInput {
+  ModelInput(pos: Vector2, size: Float, velocity: Float, color: String)
+}
 
 pub opaque type Model {
   Model(pos: Vector2, size: Float, velocity: Float, color: String, angle: Float)
@@ -13,27 +18,30 @@ pub opaque type Msg {
   Noop
 }
 
-pub fn init(
-  _: RenderContext,
-  position pos: Vector2,
-  size size: Float,
-  velocity velocity: Float,
-  color color: String,
-) {
-  Model(pos: pos, size: size, velocity: velocity, color: color, angle: 0.0)
-  |> create_node(on_frame: frame, on_update: update, on_render: render)
+pub fn create(render_context: RenderContext) {
+  create_node(render_context, init, frame, update, render)
 }
 
-fn frame(_model: Model, _render_context: RenderContext) -> Msg {
-  Noop
+fn init(_: RenderContext, input: ModelInput) {
+  let model =
+    Model(
+      pos: input.pos,
+      size: input.size,
+      velocity: input.velocity,
+      color: input.color,
+      angle: 0.0,
+    )
+  #(model, effect.none())
+}
+
+fn frame(_model: Model, _render_context: RenderContext) -> #(Msg, Effect(Msg)) {
+  #(Noop, effect.none())
 }
 
 fn update(_: Msg, model: Model, _render_context: RenderContext) -> Model {
-  let next_angle = model.angle +. 1.0
-
-  case next_angle {
+  case model.angle +. 1.0 {
     a if a >. 360.0 -> Model(..model, angle: 0.0)
-    _ -> Model(..model, angle: next_angle)
+    _ -> Model(..model, angle: model.angle +. 1.0)
   }
 }
 

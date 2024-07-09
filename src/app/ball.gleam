@@ -1,10 +1,21 @@
 import app/render_context.{type RenderContext}
 import canvax/canvas/context.{type CanvasRenderingContext2D}
+import canvax/effect.{type Effect}
 import canvax/primitives/vector2 as v2
 import canvax/primitives/vector2.{type Vector2, Vector2}
 import canvax/scene.{create_node}
 import gleam/float
 import gleam_community/maths/elementary as math
+
+pub type ModelInput {
+  ModelInput(
+    pos: Vector2,
+    direction: Vector2,
+    radius: Float,
+    velocity: Float,
+    color: String,
+  )
+}
 
 pub opaque type Model {
   Model(
@@ -22,37 +33,40 @@ pub opaque type Msg {
   BounceY
 }
 
-pub fn init(
-  _: RenderContext,
-  position pos: Vector2,
-  direction dir: Vector2,
-  radius r: Float,
-  velocity v: Float,
-  color c: String,
-) {
-  Model(pos: pos, direction: dir, radius: r, velocity: v, color: c)
-  |> create_node(on_frame: frame, on_update: update, on_render: render)
+pub fn create(render_context: RenderContext) {
+  create_node(render_context, init, frame, update, render)
 }
 
-fn frame(model: Model, render_context: RenderContext) -> Msg {
+fn init(_: RenderContext, input: ModelInput) {
+  let model =
+    Model(
+      pos: input.pos,
+      direction: input.direction,
+      radius: input.radius,
+      velocity: input.velocity,
+      color: input.color,
+    )
+  #(model, effect.none())
+}
+
+fn frame(model: Model, render_context: RenderContext) -> #(Msg, Effect(Msg)) {
   let width = render_context.viewport.x
   let height = render_context.viewport.y
-  let x = model.pos.x
-  let y = model.pos.y
+
   let dx = model.direction.x *. model.velocity
   let dy = model.direction.y *. model.velocity
 
-  let bounce_right = x +. dx >=. width -. model.radius
-  let bounce_left = x +. dx <=. model.radius
-  let bounce_top = y +. dy >=. height -. model.radius
-  let bounce_bottom = y +. dy <=. model.radius
-
-  case bounce_right, bounce_left, bounce_top, bounce_bottom {
-    True, False, False, False -> BounceX
-    False, True, False, False -> BounceX
-    False, False, True, False -> BounceY
-    False, False, False, True -> BounceY
-    _, _, _, _ -> Move
+  case
+    model.pos.x +. dx >=. width -. model.radius,
+    model.pos.x +. dx <=. model.radius,
+    model.pos.y +. dy >=. height -. model.radius,
+    model.pos.y +. dy <=. model.radius
+  {
+    True, False, False, False -> #(BounceX, effect.none())
+    False, True, False, False -> #(BounceX, effect.none())
+    False, False, True, False -> #(BounceY, effect.none())
+    False, False, False, True -> #(BounceY, effect.none())
+    _, _, _, _ -> #(Move, effect.none())
   }
 }
 

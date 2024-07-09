@@ -23,45 +23,44 @@ pub fn main() {
   let render_context = RenderContext(viewport: rect)
 
   let viewport_center = v2.div(render_context.viewport, 2.0)
+  // let create_square = fn() {
+  //   let size = float.random() *. 50.0 |> float.clamp(min: 25.0, max: 50.0)
+  //   let velocity = float.random() *. 10.0 |> float.clamp(min: 1.1, max: 10.0)
 
-  let create_square = fn() {
-    let size = float.random() *. 50.0 |> float.clamp(min: 25.0, max: 50.0)
-    let velocity = float.random() *. 10.0 |> float.clamp(min: 1.1, max: 10.0)
+  //   square.init(
+  //     render_context,
+  //     position: Vector2(
+  //       random_pos(render_context.viewport.x, size),
+  //       random_pos(render_context.viewport.y, size),
+  //     ),
+  //     size: size,
+  //     velocity: velocity,
+  //     color: color.random_color(),
+  //   )
+  // }
 
-    square.init(
-      render_context,
-      position: Vector2(
-        random_pos(render_context.viewport.x, size),
-        random_pos(render_context.viewport.y, size),
-      ),
-      size: size,
-      velocity: velocity,
-      color: color.random_color(),
-    )
-  }
+  // let create_ball = fn() {
+  //   let radius = float.random() *. 10.0 |> float.clamp(min: 5.0, max: 10.0)
+  //   let velocity = float.random() *. 5.0 |> float.clamp(min: 5.0, max: 10.0)
 
-  let create_ball = fn() {
-    let radius = float.random() *. 10.0 |> float.clamp(min: 5.0, max: 10.0)
-    let velocity = float.random() *. 5.0 |> float.clamp(min: 5.0, max: 10.0)
+  //   ball.init(
+  //     render_context,
+  //     position: viewport_center |> v2.add(Vector2(radius, radius)),
+  //     direction: v2.rand2() |> v2.mul(velocity),
+  //     radius: radius,
+  //     velocity: velocity,
+  //     color: color.random_color(),
+  //   )
+  // }
 
-    ball.init(
-      render_context,
-      position: viewport_center |> v2.add(Vector2(radius, radius)),
-      direction: v2.rand2() |> v2.mul(velocity),
-      radius: radius,
-      velocity: velocity,
-      color: color.random_color(),
-    )
-  }
+  // let scene =
+  //   [background.init(render_context)]
+  //   |> list.append(list.range(0, 50) |> list.map(fn(_) { create_square() }))
+  //   |> list.append(list.range(0, 500) |> list.map(fn(_) { create_ball() }))
 
-  let scene =
-    [background.init(render_context)]
-    |> list.append(list.range(0, 50) |> list.map(fn(_) { create_square() }))
-    |> list.append(list.range(0, 500) |> list.map(fn(_) { create_ball() }))
+  // html.raf(fn(_frame) {
+  //   list.each(scene, fn(ball) { ball(ctx, render_context) })
 
-  html.raf(fn(_frame) {
-    list.each(scene, fn(ball) { ball(ctx, render_context) })
-
-    Nil
-  })
+  //   Nil
+  // })
 }
