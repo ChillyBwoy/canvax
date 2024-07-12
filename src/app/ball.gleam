@@ -7,19 +7,9 @@ import canvax/scene.{create_node}
 import gleam/float
 import gleam_community/maths/elementary as math
 
-pub type ModelInput {
-  ModelInput(
-    pos: Vector2,
-    direction: Vector2,
-    radius: Float,
-    velocity: Float,
-    color: String,
-  )
-}
-
 pub opaque type Model {
   Model(
-    pos: Vector2,
+    position: Vector2,
     direction: Vector2,
     radius: Float,
     velocity: Float,
@@ -33,20 +23,24 @@ pub opaque type Msg {
   BounceY
 }
 
-pub fn create(render_context: RenderContext) {
-  create_node(render_context, init, frame, update, render)
-}
-
-fn init(_: RenderContext, input: ModelInput) {
-  let model =
+pub fn init(
+  position position: Vector2,
+  direction direction: Vector2,
+  radius radius: Float,
+  velocity velocity: Float,
+  color color: String,
+) {
+  use _ <- create_node(frame, update, render)
+  #(
     Model(
-      pos: input.pos,
-      direction: input.direction,
-      radius: input.radius,
-      velocity: input.velocity,
-      color: input.color,
-    )
-  #(model, effect.none())
+      position: position,
+      direction: direction,
+      radius: radius,
+      velocity: velocity,
+      color: color,
+    ),
+    effect.none(),
+  )
 }
 
 fn frame(model: Model, render_context: RenderContext) -> #(Msg, Effect(Msg)) {
@@ -57,10 +51,10 @@ fn frame(model: Model, render_context: RenderContext) -> #(Msg, Effect(Msg)) {
   let dy = model.direction.y *. model.velocity
 
   case
-    model.pos.x +. dx >=. width -. model.radius,
-    model.pos.x +. dx <=. model.radius,
-    model.pos.y +. dy >=. height -. model.radius,
-    model.pos.y +. dy <=. model.radius
+    model.position.x +. dx >=. width -. model.radius,
+    model.position.x +. dx <=. model.radius,
+    model.position.y +. dy >=. height -. model.radius,
+    model.position.y +. dy <=. model.radius
   {
     True, False, False, False -> #(BounceX, effect.none())
     False, True, False, False -> #(BounceX, effect.none())
@@ -73,14 +67,15 @@ fn frame(model: Model, render_context: RenderContext) -> #(Msg, Effect(Msg)) {
 fn update(msg: Msg, model: Model, _: RenderContext) -> Model {
   case msg {
     Move -> {
-      let next_velocity = case model.velocity -. 0.01 {
+      let next_velocity = case model.velocity -. 0.005 {
         x if x <. 0.1 -> 0.1
-        _ -> model.velocity -. 0.01
+        _ -> model.velocity -. 0.005
       }
 
       Model(
         ..model,
-        pos: v2.mul(model.direction, model.velocity) |> v2.add(model.pos),
+        position: v2.mul(model.direction, model.velocity)
+          |> v2.add(model.position),
         velocity: next_velocity,
       )
     }
@@ -102,7 +97,7 @@ fn update(msg: Msg, model: Model, _: RenderContext) -> Model {
 fn render(ctx: CanvasRenderingContext2D, model: Model, _: RenderContext) {
   context.with_path(ctx, fn(c) {
     c
-    |> context.arc(model.pos, model.radius, 0.0, math.pi() *. 2.0)
+    |> context.arc(model.position, model.radius, 0.0, math.pi() *. 2.0)
     |> context.fill_style(model.color)
     |> context.fill()
     |> context.stroke_style("#000")

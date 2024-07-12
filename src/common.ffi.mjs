@@ -15,6 +15,22 @@ export function render(initialState, callback) {
   return run;
 }
 
-export function create_scene_node() {
-  throw new Error("not implemented");
+export function create_scene_node({ frame, update, render, init }) {
+  let initialized = false;
+  let model;
+
+  const loop = (ctx, rc) => {
+    if (!initialized) {
+      initialized = true;
+      const [initialModel, _initialEffect] = init(rc);
+      model = initialModel;
+      render(ctx, model, rc);
+    }
+
+    const [msg, _effect] = frame(model, rc);
+    model = update(msg, model, rc);
+    render(ctx, model, rc);
+  };
+
+  return loop;
 }

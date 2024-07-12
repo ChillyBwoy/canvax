@@ -12,13 +12,9 @@ pub opaque type Msg {
   Noop
 }
 
-pub fn create(render_context: RenderContext) {
-  create_node(render_context, init, frame, update, render)
-}
-
-fn init(_: RenderContext, _params) {
-  let model = Model
-  #(model, effect.none())
+pub fn init() {
+  use _ <- create_node(frame, update, render)
+  #(Model, effect.none())
 }
 
 fn frame(_model: Model, _render_context: RenderContext) -> #(Msg, Effect(Msg)) {
