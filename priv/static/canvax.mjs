@@ -347,11 +347,11 @@ function getElementById(id) {
 }
 function raf(callback) {
   let delta = 0;
-  const render5 = () => {
+  const render4 = () => {
     callback(++delta);
-    requestAnimationFrame(render5);
+    requestAnimationFrame(render4);
   };
-  requestAnimationFrame(render5);
+  requestAnimationFrame(render4);
 }
 
 // build/dev/javascript/canvax/context.ffi.mjs
@@ -423,28 +423,51 @@ function with_path(ctx, callback) {
   return closePath(_pipe$1);
 }
 
+// build/dev/javascript/canvax/canvax/effect.mjs
+var Effect = class extends CustomType {
+  constructor(all) {
+    super();
+    this.all = all;
+  }
+};
+function none() {
+  return new Effect(toList([]));
+}
+
 // build/dev/javascript/canvax/common.ffi.mjs
 function getDimensions($el) {
   return new Ok(new Vector2($el.width, $el.height));
 }
-function render(initialState, callback) {
-  let state = initialState;
-  const run = (ctx, renderContext) => {
-    state = callback(state, ctx, renderContext);
+function create_scene_node({ frame: frame4, update: update5, render: render4, init: init4 }) {
+  let initialized = false;
+  let model;
+  const loop = (ctx, rc) => {
+    if (!initialized) {
+      initialized = true;
+      const [initialModel, _initialEffect] = init4(rc);
+      model = initialModel;
+      render4(ctx, model, rc);
+    }
+    const [msg, _effect] = frame4(model, rc);
+    model = update5(msg, model, rc);
+    render4(ctx, model, rc);
   };
-  return run;
+  return loop;
 }
 
 // build/dev/javascript/canvax/canvax/scene.mjs
-function create_node(initial, do_frame, do_update, do_render) {
-  return render(
-    initial,
-    (model, ctx, render_context) => {
-      do_render(ctx, model, render_context);
-      let _pipe = do_frame(model, render_context);
-      return do_update(_pipe, model, render_context);
-    }
-  );
+var Node = class extends CustomType {
+  constructor(frame4, update5, render4, init4) {
+    super();
+    this.frame = frame4;
+    this.update = update5;
+    this.render = render4;
+    this.init = init4;
+  }
+};
+function create_node(frame4, update5, render4, init4) {
+  let _pipe = new Node(frame4, update5, render4, init4);
+  return create_scene_node(_pipe);
 }
 
 // build/dev/javascript/canvax/app/background.mjs
@@ -453,12 +476,12 @@ var Model = class extends CustomType {
 var Noop = class extends CustomType {
 };
 function frame(_, _1) {
-  return new Noop();
+  return [new Noop(), none()];
 }
 function update(_, model, _1) {
   return model;
 }
-function render2(ctx, _, render_context) {
+function render(ctx, _, render_context) {
   let _pipe = ctx;
   let _pipe$1 = clearRect(
     _pipe,
@@ -469,9 +492,15 @@ function render2(ctx, _, render_context) {
   fillRect(_pipe$2, new Vector2(0, 0), render_context.viewport);
   return void 0;
 }
-function init(_) {
-  let _pipe = new Model();
-  return create_node(_pipe, frame, update, render2);
+function init() {
+  return create_node(
+    frame,
+    update,
+    render,
+    (_) => {
+      return [new Model(), none()];
+    }
+  );
 }
 
 // build/dev/javascript/gleam_community_maths/maths.mjs
@@ -486,9 +515,9 @@ function pi2() {
 
 // build/dev/javascript/canvax/app/ball.mjs
 var Model2 = class extends CustomType {
-  constructor(pos, direction, radius, velocity, color) {
+  constructor(position, direction, radius, velocity, color) {
     super();
-    this.pos = pos;
+    this.position = position;
     this.direction = direction;
     this.radius = radius;
     this.velocity = velocity;
@@ -504,41 +533,39 @@ var BounceY = class extends CustomType {
 function frame2(model, render_context) {
   let width = render_context.viewport.x;
   let height = render_context.viewport.y;
-  let x = model.pos.x;
-  let y = model.pos.y;
   let dx = model.direction.x * model.velocity;
   let dy = model.direction.y * model.velocity;
-  let bounce_right = x + dx >= width - model.radius;
-  let bounce_left = x + dx <= model.radius;
-  let bounce_top = y + dy >= height - model.radius;
-  let bounce_bottom = y + dy <= model.radius;
-  if (bounce_right && !bounce_left && !bounce_top && !bounce_bottom) {
-    return new BounceX();
-  } else if (!bounce_right && bounce_left && !bounce_top && !bounce_bottom) {
-    return new BounceX();
-  } else if (!bounce_right && !bounce_left && bounce_top && !bounce_bottom) {
-    return new BounceY();
-  } else if (!bounce_right && !bounce_left && !bounce_top && bounce_bottom) {
-    return new BounceY();
+  let $ = model.position.x + dx >= width - model.radius;
+  let $1 = model.position.x + dx <= model.radius;
+  let $2 = model.position.y + dy >= height - model.radius;
+  let $3 = model.position.y + dy <= model.radius;
+  if ($ && !$1 && !$2 && !$3) {
+    return [new BounceX(), none()];
+  } else if (!$ && $1 && !$2 && !$3) {
+    return [new BounceX(), none()];
+  } else if (!$ && !$1 && $2 && !$3) {
+    return [new BounceY(), none()];
+  } else if (!$ && !$1 && !$2 && $3) {
+    return [new BounceY(), none()];
   } else {
-    return new Move();
+    return [new Move(), none()];
   }
 }
 function update2(msg, model, _) {
   if (msg instanceof Move) {
     let next_velocity = (() => {
-      let $ = model.velocity - 0.01;
+      let $ = model.velocity - 5e-3;
       if ($ < 0.1) {
         let x = $;
         return 0.1;
       } else {
-        return model.velocity - 0.01;
+        return model.velocity - 5e-3;
       }
     })();
     return model.withFields({
-      pos: (() => {
+      position: (() => {
         let _pipe = mul(model.direction, model.velocity);
-        return add2(_pipe, model.pos);
+        return add2(_pipe, model.position);
       })(),
       velocity: next_velocity
     });
@@ -558,14 +585,14 @@ function update2(msg, model, _) {
     });
   }
 }
-function render3(ctx, model, _) {
+function render2(ctx, model, _) {
   with_path(
     ctx,
     (c) => {
       let _pipe = c;
       let _pipe$1 = arc(
         _pipe,
-        model.pos,
+        model.position,
         model.radius,
         0,
         pi2() * 2
@@ -578,18 +605,26 @@ function render3(ctx, model, _) {
   );
   return void 0;
 }
-function init2(_, pos, dir, r, v, c) {
-  let _pipe = new Model2(pos, dir, r, v, c);
-  return create_node(_pipe, frame2, update2, render3);
+function init2(position, direction, radius, velocity, color) {
+  return create_node(
+    frame2,
+    update2,
+    render2,
+    (_) => {
+      return [
+        new Model2(position, direction, radius, velocity, color),
+        none()
+      ];
+    }
+  );
 }
 
 // build/dev/javascript/canvax/app/square.mjs
 var Model3 = class extends CustomType {
-  constructor(pos, size, velocity, color, angle2) {
+  constructor(position, size, color, angle2) {
     super();
-    this.pos = pos;
+    this.position = position;
     this.size = size;
-    this.velocity = velocity;
     this.color = color;
     this.angle = angle2;
   }
@@ -597,27 +632,30 @@ var Model3 = class extends CustomType {
 var Noop2 = class extends CustomType {
 };
 function frame3(_, _1) {
-  return new Noop2();
+  return [new Noop2(), none()];
 }
 function update3(_, model, _1) {
-  let next_angle = model.angle + 1;
-  if (next_angle > 360) {
-    let a = next_angle;
-    return model.withFields({ angle: 0 });
-  } else {
-    return model.withFields({ angle: next_angle });
-  }
+  let next_angle = (() => {
+    let $ = model.angle + 1;
+    if ($ > 360) {
+      let a = $;
+      return 0;
+    } else {
+      return model.angle + 1;
+    }
+  })();
+  return model.withFields({ angle: next_angle });
 }
-function render4(ctx, model, _) {
+function render3(ctx, model, _) {
   let offset = (() => {
     let _pipe2 = new Vector2(model.size, model.size);
     return div(_pipe2, 2);
   })();
   let translate_to = (() => {
-    let _pipe2 = model.pos;
+    let _pipe2 = model.position;
     return add2(_pipe2, offset);
   })();
-  let angle2 = divideFloat(model.angle * pi2(), 180) * model.velocity;
+  let angle2 = divideFloat(model.angle * pi2(), 180);
   let _pipe = ctx;
   let _pipe$1 = save(_pipe);
   let _pipe$2 = translate(_pipe$1, translate_to);
@@ -635,7 +673,7 @@ function render4(ctx, model, _) {
       let _pipe$52 = ctx;
       let _pipe$6 = rect(
         _pipe$52,
-        model.pos,
+        model.position,
         new Vector2(model.size, model.size)
       );
       let _pipe$7 = fillStyle(_pipe$6, model.color);
@@ -647,9 +685,15 @@ function render4(ctx, model, _) {
   restore(_pipe$5);
   return void 0;
 }
-function init3(_, pos, size, velocity, color) {
-  let _pipe = new Model3(pos, size, velocity, color, 0);
-  return create_node(_pipe, frame3, update3, render4);
+function init3(position, size, color) {
+  return create_node(
+    frame3,
+    update3,
+    render3,
+    (_) => {
+      return [new Model3(position, size, color, 0), none()];
+    }
+  );
 }
 
 // build/dev/javascript/gleam_stdlib/gleam/string.mjs
@@ -723,18 +767,12 @@ function main() {
       let _pipe = random_uniform() * 50;
       return clamp(_pipe, 25, 50);
     })();
-    let velocity = (() => {
-      let _pipe = random_uniform() * 10;
-      return clamp(_pipe, 1.1, 10);
-    })();
     return init3(
-      render_context,
       new Vector2(
         random_pos(render_context.viewport.x, size),
         random_pos(render_context.viewport.y, size)
       ),
       size,
-      velocity,
       random_color()
     );
   };
@@ -748,7 +786,6 @@ function main() {
       return clamp(_pipe, 5, 10);
     })();
     return init2(
-      render_context,
       (() => {
         let _pipe = viewport_center;
         return add2(_pipe, new Vector2(radius, radius));
@@ -763,7 +800,7 @@ function main() {
     );
   };
   let scene = (() => {
-    let _pipe = toList([init(render_context)]);
+    let _pipe = toList([init()]);
     let _pipe$1 = append(
       _pipe,
       (() => {
@@ -776,7 +813,7 @@ function main() {
     return append(
       _pipe$1,
       (() => {
-        let _pipe$2 = range(0, 500);
+        let _pipe$2 = range(0, 1e3);
         return map(_pipe$2, (_) => {
           return create_ball();
         });
@@ -785,8 +822,8 @@ function main() {
   })();
   return raf(
     (_) => {
-      each(scene, (ball) => {
-        return ball(ctx, render_context);
+      each(scene, (node) => {
+        return node(ctx, render_context);
       });
       return void 0;
     }

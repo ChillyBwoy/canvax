@@ -1,20 +1,29 @@
 import canvax/canvas/context.{type CanvasRenderingContext2D}
+import canvax/effect.{type Effect}
 
-@external(javascript, "../common.ffi.mjs", "render")
-fn render_ffi(
-  initial_state: model,
-  step: fn(model, CanvasRenderingContext2D, rc) -> model,
-) -> fn(CanvasRenderingContext2D, rc) -> Nil
+pub opaque type Node(model, msg, rc) {
+  Node(
+    frame: fn(model, rc) -> #(msg, Effect(msg)),
+    update: fn(msg, model, rc) -> model,
+    render: fn(CanvasRenderingContext2D, model, rc) -> Nil,
+    init: fn(rc) -> #(model, Effect(msg)),
+  )
+}
+
+pub type NodeError {
+  NotABrowsser
+}
 
 pub fn create_node(
-  initial: m,
-  on_frame do_frame: fn(m, rc) -> msg,
-  on_update do_update: fn(msg, m, rc) -> m,
-  on_render do_render: fn(CanvasRenderingContext2D, m, rc) -> Nil,
+  frame: fn(model, rc) -> #(msg, Effect(msg)),
+  update: fn(msg, model, rc) -> model,
+  render: fn(CanvasRenderingContext2D, model, rc) -> Nil,
+  init: fn(rc) -> #(model, Effect(msg)),
 ) {
-  render_ffi(initial, fn(model, ctx, render_context) {
-    do_render(ctx, model, render_context)
-    do_frame(model, render_context)
-    |> do_update(model, render_context)
-  })
+  Node(frame, update, render, init) |> create_node_ffi()
 }
+
+@external(javascript, "../common.ffi.mjs", "create_scene_node")
+fn create_node_ffi(
+  _node: Node(model, msg, rc),
+) -> fn(CanvasRenderingContext2D, rc) -> Nil
