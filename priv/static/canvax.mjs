@@ -719,113 +719,140 @@ function random_color() {
 }
 
 // build/dev/javascript/canvax/canvax.mjs
+var NoRootElement = class extends CustomType {
+};
+var NoContext = class extends CustomType {
+};
+var CanvaxApp = class extends CustomType {
+  constructor(el, ctx) {
+    super();
+    this.el = el;
+    this.ctx = ctx;
+  }
+};
 function random_pos(base, size) {
   let _pipe = random_uniform() * base;
   return clamp(_pipe, size, base - size);
 }
+function app(el_id) {
+  let $ = getElementById(el_id);
+  if (!$.isOk()) {
+    return new Error(new NoRootElement());
+  } else {
+    let el = $[0];
+    let $1 = getContext(el);
+    if (!$1.isOk()) {
+      return new Error(new NoContext());
+    } else {
+      let ctx = $1[0];
+      let _pipe = new CanvaxApp(el, ctx);
+      return new Ok(_pipe);
+    }
+  }
+}
+function run(app2, create_node_list) {
+  let $ = create_node_list(app2.el, app2.ctx);
+  let render_context = $[0];
+  let node_list = $[1];
+  return raf(
+    (_) => {
+      each(node_list, (node) => {
+        return node(app2.ctx, render_context);
+      });
+      return void 0;
+    }
+  );
+}
 function main() {
-  let $ = getElementById("canvas");
+  let $ = app("canvas");
   if (!$.isOk()) {
     throw makeError(
       "assignment_no_match",
       "canvax",
-      20,
+      57,
       "main",
       "Assignment pattern did not match",
       { value: $ }
     );
   }
-  let el = $[0];
-  let $1 = getDimensions(el);
-  if (!$1.isOk()) {
-    throw makeError(
-      "assignment_no_match",
-      "canvax",
-      21,
-      "main",
-      "Assignment pattern did not match",
-      { value: $1 }
-    );
-  }
-  let rect2 = $1[0];
-  let $2 = getContext(el);
-  if (!$2.isOk()) {
-    throw makeError(
-      "assignment_no_match",
-      "canvax",
-      22,
-      "main",
-      "Assignment pattern did not match",
-      { value: $2 }
-    );
-  }
-  let ctx = $2[0];
-  let render_context = new RenderContext(rect2);
-  let viewport_center = div(render_context.viewport, 2);
-  let create_square = () => {
-    let size = (() => {
-      let _pipe = random_uniform() * 50;
-      return clamp(_pipe, 25, 50);
-    })();
-    return init3(
-      new Vector2(
-        random_pos(render_context.viewport.x, size),
-        random_pos(render_context.viewport.y, size)
-      ),
-      size,
-      random_color()
-    );
-  };
-  let create_ball = () => {
-    let radius = (() => {
-      let _pipe = random_uniform() * 10;
-      return clamp(_pipe, 5, 10);
-    })();
-    let velocity = (() => {
-      let _pipe = random_uniform() * 5;
-      return clamp(_pipe, 5, 10);
-    })();
-    return init2(
-      (() => {
-        let _pipe = viewport_center;
-        return add2(_pipe, new Vector2(radius, radius));
-      })(),
-      (() => {
-        let _pipe = rand2();
-        return mul(_pipe, velocity);
-      })(),
-      radius,
-      velocity,
-      random_color()
-    );
-  };
-  let scene = (() => {
-    let _pipe = toList([init()]);
-    let _pipe$1 = append(
-      _pipe,
-      (() => {
-        let _pipe$12 = range(0, 50);
-        return map(_pipe$12, (_) => {
-          return create_square();
-        });
-      })()
-    );
-    return append(
-      _pipe$1,
-      (() => {
-        let _pipe$2 = range(0, 1e3);
-        return map(_pipe$2, (_) => {
-          return create_ball();
-        });
-      })()
-    );
-  })();
-  return raf(
-    (_) => {
-      each(scene, (node) => {
-        return node(ctx, render_context);
-      });
-      return void 0;
+  let app$1 = $[0];
+  let _pipe = app$1;
+  return run(
+    _pipe,
+    (el, _) => {
+      let $1 = getDimensions(el);
+      if (!$1.isOk()) {
+        throw makeError(
+          "assignment_no_match",
+          "canvax",
+          61,
+          "",
+          "Assignment pattern did not match",
+          { value: $1 }
+        );
+      }
+      let rect2 = $1[0];
+      let render_context = new RenderContext(rect2);
+      let viewport_center = div(render_context.viewport, 2);
+      let create_square = () => {
+        let size = (() => {
+          let _pipe$1 = random_uniform() * 50;
+          return clamp(_pipe$1, 25, 50);
+        })();
+        return init3(
+          new Vector2(
+            random_pos(render_context.viewport.x, size),
+            random_pos(render_context.viewport.y, size)
+          ),
+          size,
+          random_color()
+        );
+      };
+      let create_ball = () => {
+        let radius = (() => {
+          let _pipe$1 = random_uniform() * 10;
+          return clamp(_pipe$1, 5, 10);
+        })();
+        let velocity = (() => {
+          let _pipe$1 = random_uniform() * 5;
+          return clamp(_pipe$1, 5, 10);
+        })();
+        return init2(
+          (() => {
+            let _pipe$1 = viewport_center;
+            return add2(_pipe$1, new Vector2(radius, radius));
+          })(),
+          (() => {
+            let _pipe$1 = rand2();
+            return mul(_pipe$1, velocity);
+          })(),
+          radius,
+          velocity,
+          random_color()
+        );
+      };
+      let scene = (() => {
+        let _pipe$1 = toList([init()]);
+        let _pipe$2 = append(
+          _pipe$1,
+          (() => {
+            let _pipe$22 = range(0, 50);
+            return map(_pipe$22, (_2) => {
+              return create_square();
+            });
+          })()
+        );
+        return append(
+          _pipe$2,
+          (() => {
+            let _pipe$3 = range(0, 1e3);
+            return map(_pipe$3, (_2) => {
+              return create_ball();
+            });
+          })()
+        );
+      })();
+      return [render_context, scene];
     }
   );
 }

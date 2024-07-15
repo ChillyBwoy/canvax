@@ -10,6 +10,9 @@ pub opaque type Node(model, msg, rc) {
   )
 }
 
+pub type NodeList(rc) =
+  List(fn(CanvasRenderingContext2D, rc) -> Nil)
+
 pub type NodeError {
   NotABrowsser
 }
