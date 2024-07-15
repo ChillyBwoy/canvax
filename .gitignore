@@ -2,5 +2,8 @@
 
 *.beam
 *.ez
+.vscode
 /build
 erl_crash.dump
+
+/examples/**/build
