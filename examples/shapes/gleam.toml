@@ -1,4 +1,4 @@
-name = "canvax"
+name = "app"
 version = "1.0.0"
 
 target = "javascript"
@@ -8,8 +8,8 @@ target = "javascript"
 #
 # description = ""
 # licences = ["Apache-2.0"]
-# repository = { type = "github", user = "username", repo = "project" }
-# links = [{ title = "Website", href = "https://gleam.run" }]
+# repository = { type = "github", user = "", repo = "" }
+# links = [{ title = "Website", href = "" }]
 #
 # For a full reference of all the available options, you can have a look at
 # https://gleam.run/writing-gleam/gleam-toml/.
@@ -17,10 +17,7 @@ target = "javascript"
 [dependencies]
 gleam_stdlib = ">= 0.34.0 and < 2.0.0"
 gleam_community_maths = ">= 1.1.1 and < 2.0.0"
+canvax = { path = "../../" }
 
 [dev-dependencies]
 gleeunit = ">= 1.0.0 and < 2.0.0"
-
-
-[javascript]
-# typescript_declarations = true
